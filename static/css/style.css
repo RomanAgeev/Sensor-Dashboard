@@ -1,6 +1,7 @@
 :root {
   --sidebar-width: 250px;
   --sidebar-width-neg: -250px;
+  --sidebar-small-width: 51px;
 }
 
 body {
@@ -19,12 +20,38 @@ p {
   transition: all 0.3s;
 }
 
+#content.large {
+  margin-left: var(--sidebar-small-width);
+  transition: all 0.3s;
+}
+
 #content .item.active {
   display: initial;
 }
 
 #content .item {
   display: none;
+}
+
+#sidebar-small {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--sidebar-small-width);
+  height: 100%;
+  background: var(--dark);
+  color: var(--light);
+}
+
+#sidebar-small .expand-button {
+  padding: 20px 20px 20px 15px;
+  background: inherit;
+  font-size: 1.3em;
+  cursor: pointer;
+}
+
+#sidebar-small .expand-button:hover {
+  color: var(--gray);
 }
 
 #sidebar {
@@ -42,6 +69,19 @@ p {
   font-size: 1.5em;
   padding: 20px;
   background: inherit;
+  display: inline-block;
+}
+
+#sidebar .collapse-button {
+  float: right;
+  padding: 20px;
+  background: inherit;
+  font-size: 1.5em;
+  cursor: pointer;
+}
+
+#sidebar .collapse-button:hover {
+  color: var(--gray);
 }
 
 #sidebar .item, #sidebar .groupitem {
@@ -65,7 +105,7 @@ p {
   background: var(--light);
 }
 
-#sidebar.active {
+#sidebar.hidden {
   margin-left: -250px;
 }
 
@@ -86,6 +126,6 @@ p {
     margin-left: var(--sidebar-width-neg);
   }
   #content {
-    margin-left: 0;
+    margin-left: var(--sidebar-small-width);
   }
 }

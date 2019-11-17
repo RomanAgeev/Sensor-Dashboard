@@ -31,6 +31,16 @@
             });
         });
 
+        $('#sidebar .collapse-button').on('click', function() {
+            $('#sidebar').addClass('hidden');
+            $('#content').addClass('large');
+        });
+
+        $('#sidebar-small .expand-button').on('click', function() {
+            $('#sidebar').removeClass('hidden');
+            $('#content').removeClass('large');
+        });
+
         selectItem('dashboard1');
 
         // alert("READY");
@@ -40,8 +50,13 @@
     });
 </script>
 
+<div id="sidebar-small">
+    <p class="expand-button">&#9776;</p>
+</div>
+
 <nav id="sidebar">
     <p class="header">Smart Steel</p>
+    <p class="collapse-button">&times;</p>
 
     <ul class="list-unstyled">
         <li>
