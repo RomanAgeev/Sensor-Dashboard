@@ -1,47 +1,94 @@
 {% extends "base.html" %}
 {% block content %}
 
-<!-- <script type="text/javascript">
-    $(document).ready(function () {
-        $('#sidebarCollapse').on('click', function () {
-            $('#sidebar').toggleClass('active');
-        });    
+<script type="text/javascript">
+    $(function() {
+        function selectItem(itemId) {
+            if (!itemId) {
+                return;
+            }
+
+            $('#sidebar .item').each(function() {
+                if ($(this).data('item') === itemId) {
+                    $(this).addClass('active');
+                } else {
+                    $(this).removeClass('active');
+                }
+            });
+
+            $('#content .item').each(function() {
+                if ($(this).attr('id') === itemId) {
+                    $(this).addClass('active');
+                } else {
+                    $(this).removeClass('active');
+                }
+            });
+        }
+
+        $('#sidebar .item').each(function() {
+            $(this).on('click', function(e) {
+                selectItem($(e.target).data('item'));
+            });
+        });
+
+        selectItem('dashboard1');
+
+        // alert("READY");
+        // $('#sidebarCollapse').on('click', function () {
+        //     $('#sidebar').toggleClass('active');
+        // });    
     });
-</script> -->
+</script>
 
 <nav id="sidebar">
     <p class="header">Smart Steel</p>
 
     <ul class="list-unstyled">
         <li>
-            <span class="item">Dashboard 1</span>
+            <span class="item" data-item="dashboard1">Dashboard 1</span>
         </li>
         <li>
-            <a href="#dashboards2" data-toggle="collapse" aria-expanded="false" class="item dropdown-toggle">Dashboards 2</a>
+            <a href="#dashboards2" data-toggle="collapse" aria-expanded="false" class="groupitem dropdown-toggle">Dashboards 2</a>
             <ul class="collapse list-unstyled" id="dashboards2">
                 <li>
-                    <span class="item subitem">Dashboard 2.1</span>
+                    <span class="item subitem" data-item="dashboard2.1">Dashboard 2.1</span>
                 </li>
                 <li>
-                    <span class="item subitem">Dashboard 2.2</span>
+                    <span class="item subitem" data-item="dashboard2.2">Dashboard 2.2</span>
                 </li>
                 <li>
-                    <span class="item subitem">Dashbaord 2.3</span>
+                    <span class="item subitem" data-item="dashboard2.3">Dashbaord 2.3</span>
                 </li>
             </ul>
         </li>
         <li>
-            <span class="item active">Dashboard 3</span>
+            <span class="item" data-item="dashboard3">Dashboard 3</span>
         </li>
         <li>
-            <span class="item">Dashboard 4</span>
+            <span class="item" data-item="dashboard4">Dashboard 4</span>
         </li>
     </ul>
 </nav>
 
 <div id="content">
-    This is content !
-    <!-- We'll fill this with dummy content -->
+    <div id="dashboard1" class="item">
+        Dashboard 1
+    </div>
+    <div id="dashboard2.1" class="item">
+        Dashboard 2.1
+    </div>
+    <div id="dashboard2.2" class="item">
+        Dashboard 2.2
+    </div>
+    <div id="dashboard2.3" class="item">
+        Dashboard 2.3
+    </div>    
+    <div id="dashboard3" class="item">
+        Dashboard 3
+    </div>
+    <div id="dashboard4" class="item">
+        Dashboard 4
+    </div>    
 </div>
 
 {% endblock %}
