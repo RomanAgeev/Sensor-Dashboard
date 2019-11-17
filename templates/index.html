@@ -25,31 +25,25 @@
             });
         }
 
-        function hideSidebar() {
-            $('#sidebar').addClass('hidden');
-            $('#content').addClass('large');
-        }
-
-        function showSidebar() {
-            $('#sidebar').removeClass('hidden');
-            $('#content').removeClass('large');
-        }
-
         $('#sidebar .item').each(function() {
             $(this).on('click', function(e) {
                 selectItem($(e.target).data('item'));
             });
         });
 
-        $('#sidebar .collapse-button').on('click', hideSidebar);
+        $('#sidebar .collapse-button').on('click', function() {
+            $('#sidebar').removeClass('visible');
+        });
 
-        $('#sidebar-small .expand-button').on('click', showSidebar);
+        $('#sidebar-small .expand-button').on('click', function() {
+            $('#sidebar').addClass('visible');
+        });
 
         $(window).resize(function() {
-            if (window.innerWidth <= 768) {
-                hideSidebar();
+            if(window.innerWidth <= 768) {
+                $('#sidebar').removeClass('visible');
             }
-        });
+        })
 
         selectItem('dashboard1');
     });

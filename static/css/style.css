@@ -78,6 +78,8 @@ p {
   background: inherit;
   font-size: 1.5em;
   cursor: pointer;
+  display: none;
+  transition: all 0.3s;
 }
 
 #sidebar .collapse-button:hover {
@@ -105,10 +107,6 @@ p {
   background: var(--light);
 }
 
-#sidebar.hidden {
-  margin-left: -250px;
-}
-
 #sidebar .dropdown-toggle[data-toggle="collapse"] {
   position: relative;
 }
@@ -122,7 +120,19 @@ p {
 }
 
 @media (max-width: 768px) {
+  #sidebar {
+    margin-left: -250px;
+  }
+
+  #sidebar.visible {
+    margin-left: 0;
+  }
+  
   #content {
     margin-left: var(--sidebar-small-width);
+  }
+
+  #sidebar .collapse-button {
+    display: initial;
   }
 }
