@@ -45,6 +45,33 @@
             }
         })
 
+        const dashboard1Options = {
+            chart: {
+                type: 'line'
+            },
+            title: {
+                text: 'Dashboard 1'
+            },
+            xAxis: {
+
+            },
+            yAxis: {
+                title: {
+                    text: 'values'
+                }
+            },
+            series: [{
+                name: 'sensor0'
+            }]
+        };
+
+        fetch('/data')
+            .then(res => res.json())
+            .then(({ sensor_data })  => {
+                dashboard1Options.series[0].data = sensor_data.sensor0;
+                Highcharts.chart('dashboard1', dashboard1Options);
+            });
+
         selectItem('dashboard1');
     });
 </script>
@@ -86,7 +113,6 @@
 
 <div id="content">
     <div id="dashboard1" class="item">
-        Dashboard 1
     </div>
     <div id="dashboard2.1" class="item">
         Dashboard 2.1
