@@ -33,7 +33,12 @@ p {
   display: none;
 }
 
-#content #dashboard1 {
+#content #dashboard1 #sensor_data {
+  width: 100%;
+  height: 500px;
+}
+
+#content #dashboard1 #sensor_dist {
   width: 100%;
   height: 500px;
 }

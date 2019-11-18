@@ -45,12 +45,12 @@
             }
         })
 
-        const dashboard1Options = {
+        const getChart = (name, type) => ({
             chart: {
-                type: 'line'
+                type
             },
             title: {
-                text: 'Dashboard 1'
+                text: name
             },
             xAxis: {
 
@@ -61,15 +61,30 @@
                 }
             },
             series: [{
-                name: 'sensor0'
+                name
             }]
-        };
+        });
 
         fetch('/data')
             .then(res => res.json())
             .then(({ sensor_data })  => {
-                dashboard1Options.series[0].data = sensor_data.sensor0;
-                Highcharts.chart('dashboard1', dashboard1Options);
+                const sensor0 = sensor_data.sensor0
+
+                const sensorDataChart = getChart('Sensor 0 data', 'line');
+                sensorDataChart.series[0].data = sensor0;
+
+                const step = 0.05;
+                
+                const sensorDistChart = getChart('Sensor 0 dist', 'column');
+                const sensor0Dist = sensor0.reduce((acc, value) => {
+                    const bucket = Math.floor(value / step);
+                    acc[bucket]++;
+                    return acc;
+                }, new Array(1 / step).fill(0));
+                sensorDistChart.series[0].data = sensor0Dist;
+
+                Highcharts.chart('sensor_data', sensorDataChart);
+                Highcharts.chart('sensor_dist', sensorDistChart);
             });
 
         selectItem('dashboard1');
@@ -113,6 +128,8 @@
 
 <div id="content">
     <div id="dashboard1" class="item">
+        <div id="sensor_data"></div>
+        <div id="sensor_dist"></div>
     </div>
     <div id="dashboard2.1" class="item">
         Dashboard 2.1
