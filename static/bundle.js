@@ -141,13 +141,7 @@ var sidebar = function ($) {
           $(this).removeClass('active');
         }
       });
-      itemSelected(itemId); // $('#content .item').each(function() {
-      //     if ($(this).attr('id') === itemId) {
-      //         $(this).addClass('active');
-      //     } else {
-      //         $(this).removeClass('active');
-      //     }
-      // });
+      itemSelected(itemId);
     }
 
     $('#sidebar .item').each(function () {
@@ -172,13 +166,54 @@ var sidebar = function ($) {
 
 var _default = sidebar;
 exports.default = _default;
-},{}],"DJma":[function(require,module,exports) {
+},{}],"SWXj":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.dashboard = void 0;
+exports.getAllSensorsData = exports.getRawData = void 0;
+var rawData = null;
+
+var getRawData = function getRawData() {
+  if (rawData) {
+    return Promise.resolve(rawData);
+  }
+
+  return fetch('/data').then(function (res) {
+    return res.json();
+  }).then(function (data) {
+    rawData = data;
+    return data;
+  });
+};
+
+exports.getRawData = getRawData;
+
+var getAllSensorsData = function getAllSensorsData() {
+  return getRawData().then(function (_ref) {
+    var sensor_data = _ref.sensor_data;
+    return Object.getOwnPropertyNames(sensor_data).map(function (name) {
+      return /^sensor(\d+)$/g.exec(name);
+    }).filter(function (match) {
+      return match !== null;
+    }).reduce(function (acc, match) {
+      var name = match[0];
+      var pos = match[1];
+      acc[pos] = sensor_data[name];
+      return acc;
+    }, []);
+  });
+};
+
+exports.getAllSensorsData = getAllSensorsData;
+},{}],"YLGK":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.calcSensorBox = void 0;
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
@@ -187,6 +222,66 @@ function _nonIterableRest() { throw new TypeError("Invalid attempt to destructur
 function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+var calcSensorBox = function calcSensorBox(data, sensorName) {
+  var sensorData = data[sensorName];
+
+  var _sensorData$reduce = sensorData.reduce(function (acc, val, index) {
+    var classLabel = data.class_label[index];
+
+    if (classLabel === 1) {
+      acc.classPos.push(val);
+    } else if (classLabel === -1) {
+      acc.classNeg.push(val);
+    } else {
+      console.warn("Unexpected class lable ".concat(classLabel));
+    }
+
+    return acc;
+  }, {
+    classPos: [],
+    classNeg: []
+  }),
+      classPos = _sensorData$reduce.classPos,
+      classNeg = _sensorData$reduce.classNeg;
+
+  return [calcBox(classPos), calcBox(classNeg)];
+};
+
+exports.calcSensorBox = calcSensorBox;
+
+var calcBox = function calcBox(values) {
+  values.sort();
+
+  var _calcMedian = calcMedian(values, 0, values.length - 1),
+      _calcMedian2 = _slicedToArray(_calcMedian, 3),
+      median = _calcMedian2[0],
+      medianIndexLeft = _calcMedian2[1],
+      medianIndexRight = _calcMedian2[2];
+
+  var leftQuart = calcMedian(values, 0, medianIndexLeft - 1)[0];
+  var rightQuart = calcMedian(values, medianIndexRight + 1, values.length - 1)[0];
+  return [values[0], leftQuart, median, rightQuart, values[values.length - 1]];
+};
+
+var calcMedian = function calcMedian(values, minIndex, maxIndex) {
+  var center = minIndex + (maxIndex - minIndex) / 2;
+  var leftIndex = Math.floor(center);
+  var rightIndex = Math.ceil(center);
+  var median = (values[leftIndex] + values[rightIndex]) / 2;
+  return [median, leftIndex, rightIndex];
+};
+},{}],"DJma":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.dashboard = void 0;
+
+var _dataService = require("./dataService");
+
+var _dataEngine = require("./dataEngine");
 
 var dashboard = function (Highcharts) {
   return function () {
@@ -208,11 +303,13 @@ var dashboard = function (Highcharts) {
           name: name
         }]
       };
-    };
+    }; // getAllSensorsData()
+    //     .then(data => {
+    //         console.log(data);
+    //     });
 
-    fetch('/data').then(function (res) {
-      return res.json();
-    }).then(function (_ref) {
+
+    (0, _dataService.getRawData)().then(function (_ref) {
       var sensor_data = _ref.sensor_data;
       var sensor0 = sensor_data.sensor0;
       var sensor1 = sensor_data.sensor1;
@@ -237,40 +334,21 @@ var dashboard = function (Highcharts) {
         series: [{
           name: 'boxes'
         }]
-      };
+      }; // const class_plus1 = [];
+      // const class_minus1 = [];
+      // sensor0.forEach((value, index) => {
+      //     if (sensor_data.class_label[index] === 1) {
+      //         class_plus1.push(value);
+      //     } else if(sensor_data.class_label[index] === -1) {
+      //         class_minus1.push(value);
+      //     }
+      // });
+      // const data = [
+      //     calcBox(class_plus1),
+      //     calcBox(class_minus1)
+      // ];
 
-      function calcMedian(values, minIndex, maxIndex) {
-        var center = minIndex + (maxIndex - minIndex) / 2;
-        var leftIndex = Math.floor(center);
-        var rightIndex = Math.ceil(center);
-        var median = (values[leftIndex] + values[rightIndex]) / 2;
-        return [median, leftIndex, rightIndex];
-      }
-
-      function calcBox(values) {
-        values.sort();
-
-        var _calcMedian = calcMedian(values, 0, values.length - 1),
-            _calcMedian2 = _slicedToArray(_calcMedian, 3),
-            median = _calcMedian2[0],
-            medianIndexLeft = _calcMedian2[1],
-            medianIndexRight = _calcMedian2[2];
-
-        var leftQuart = calcMedian(values, 0, medianIndexLeft - 1)[0];
-        var rightQuart = calcMedian(values, medianIndexRight + 1, values.length - 1)[0];
-        return [values[0], leftQuart, median, rightQuart, values[values.length - 1]];
-      }
-
-      var class_plus1 = [];
-      var class_minus1 = [];
-      sensor0.forEach(function (value, index) {
-        if (sensor_data.class_label[index] === 1) {
-          class_plus1.push(value);
-        } else if (sensor_data.class_label[index] === -1) {
-          class_minus1.push(value);
-        }
-      });
-      var data = [calcBox(class_plus1), calcBox(class_minus1)];
+      var data = (0, _dataEngine.calcSensorBox)(sensor_data, 'sensor0');
       sensorBoxChart.series[0].data = data;
       var step = 0.1;
       var sensorDistChart = getChart('Sensor 0 dist', 'column');
@@ -307,7 +385,7 @@ var dashboard = function (Highcharts) {
 }(Highcharts);
 
 exports.dashboard = dashboard;
-},{}],"QvaY":[function(require,module,exports) {
+},{"./dataService":"SWXj","./dataEngine":"YLGK"}],"QvaY":[function(require,module,exports) {
 "use strict";
 
 var _sidebar = _interopRequireDefault(require("./sidebar"));

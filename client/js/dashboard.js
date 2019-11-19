@@ -1,3 +1,6 @@
+import { getRawData, getAllSensorsData } from './dataService';
+import { calcSensorBox } from './dataEngine';
+
 export const dashboard = (function(Highcharts) {
     return function() {
         const getChart = (name, type) => ({
@@ -20,8 +23,13 @@ export const dashboard = (function(Highcharts) {
             }]
         });
 
-        fetch('/data')
-            .then(res => res.json())
+        // getAllSensorsData()
+        //     .then(data => {
+        //         console.log(data);
+        //     });
+
+
+        getRawData()
             .then(({ sensor_data })  => {
                 const sensor0 = sensor_data.sensor0
                 const sensor1 = sensor_data.sensor1;
@@ -50,37 +58,7 @@ export const dashboard = (function(Highcharts) {
                     }]
                 };
 
-                function calcMedian(values, minIndex, maxIndex) {
-                    const center = minIndex + (maxIndex - minIndex) / 2;
-                    const leftIndex = Math.floor(center);
-                    const rightIndex = Math.ceil(center);
-                    const median = (values[leftIndex] + values[rightIndex]) / 2;
-                    return [median, leftIndex, rightIndex];
-                }
-
-                function calcBox(values) {
-                    values.sort();
-                    const [median, medianIndexLeft, medianIndexRight] = calcMedian(values, 0, values.length - 1);
-                    const leftQuart = calcMedian(values, 0, medianIndexLeft - 1)[0];
-                    const rightQuart = calcMedian(values, medianIndexRight + 1, values.length - 1)[0];
-
-                    return [values[0], leftQuart, median, rightQuart, values[values.length - 1]];
-                }
-
-                const class_plus1 = [];
-                const class_minus1 = [];
-                sensor0.forEach((value, index) => {
-                    if (sensor_data.class_label[index] === 1) {
-                        class_plus1.push(value);
-                    } else if(sensor_data.class_label[index] === -1) {
-                        class_minus1.push(value);
-                    }
-                });
-
-                const data = [
-                    calcBox(class_plus1),
-                    calcBox(class_minus1)
-                ];
+                 const data = calcSensorBox(sensor_data, 'sensor0');
 
                 sensorBoxChart.series[0].data = data;
 
