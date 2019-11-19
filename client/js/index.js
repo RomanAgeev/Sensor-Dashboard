@@ -1,5 +1,5 @@
-import { mySidebar } from './sidebar';
+import sidebar from './sidebar';
 import { dashboard } from './dashboard';
 
-window.mySidebar = mySidebar;
+window.sidebar = sidebar;
 window.dashboard = dashboard;

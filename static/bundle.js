@@ -125,10 +125,10 @@ parcelRequire = (function (modules, cache, entry, globalName) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.mySidebar = void 0;
+exports.default = void 0;
 
-var mySidebar = function ($) {
-  return function () {
+var sidebar = function ($) {
+  return function (initialItem, itemSelected) {
     function selectItem(itemId) {
       if (!itemId) {
         return;
@@ -141,13 +141,13 @@ var mySidebar = function ($) {
           $(this).removeClass('active');
         }
       });
-      $('#content .item').each(function () {
-        if ($(this).attr('id') === itemId) {
-          $(this).addClass('active');
-        } else {
-          $(this).removeClass('active');
-        }
-      });
+      itemSelected(itemId); // $('#content .item').each(function() {
+      //     if ($(this).attr('id') === itemId) {
+      //         $(this).addClass('active');
+      //     } else {
+      //         $(this).removeClass('active');
+      //     }
+      // });
     }
 
     $('#sidebar .item').each(function () {
@@ -166,13 +166,12 @@ var mySidebar = function ($) {
         $('#sidebar').removeClass('visible');
       }
     });
-    return {
-      selectItem: selectItem
-    };
+    selectItem(initialItem);
   };
 }(jQuery);
 
-exports.mySidebar = mySidebar;
+var _default = sidebar;
+exports.default = _default;
 },{}],"DJma":[function(require,module,exports) {
 "use strict";
 
@@ -311,11 +310,13 @@ exports.dashboard = dashboard;
 },{}],"QvaY":[function(require,module,exports) {
 "use strict";
 
-var _sidebar = require("./sidebar");
+var _sidebar = _interopRequireDefault(require("./sidebar"));
 
 var _dashboard = require("./dashboard");
 
-window.mySidebar = _sidebar.mySidebar;
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+window.sidebar = _sidebar.default;
 window.dashboard = _dashboard.dashboard;
 },{"./sidebar":"Hn3T","./dashboard":"DJma"}],"C4Nx":[function(require,module,exports) {
 "use strict";

@@ -3,11 +3,16 @@
 
 <script type="text/javascript">
     $(function() {
-        const sidebar = mySidebar();
-
+        sidebar('dashboard1', itemId => {
+            $('#content .item').each(function() {
+                if ($(this).attr('id') === itemId) {
+                    $(this).addClass('active');
+                } else {
+                    $(this).removeClass('active');
+                }
+            })
+        });
         dashboard();
-
-        sidebar.selectItem('dashboard1');
     });
 </script>
 
