@@ -1,0 +1,23 @@
+{
+  "name": "smartsteel",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "parcel build ./client/bundle.js --out-dir ./static",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "parcel-bundler": "^1.12.4",
+    "sass": "^1.23.6"
+  },
+  "dependencies": {
+    "bootstrap": "^4.3.1",
+    "highcharts": "^7.2.1",
+    "jquery": "^3.4.1",
+    "popper.js": "^1.16.0"
+  }
+}
