@@ -10,11 +10,13 @@
       {% endblock %}
     </title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='vendors.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='bundle.css') }}">
   </head>
   <body>
-    <script src="{{ url_for('static', filename='bundle.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendors.js') }}"></script>
     {% block content %}
-    {% endblock %}    
+    {% endblock %}
+    <script src="{{ url_for('static', filename='bundle.js') }}"></script>
   </body>
 </html>

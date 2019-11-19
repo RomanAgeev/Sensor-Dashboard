@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "parcel build ./client/bundle.js --out-dir ./static",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "npm run build-bundle && npm run build-vendors",
+    "build-vendors": "parcel build ./client/vendors.js --no-source-maps --out-dir ./static",
+    "build-bundle": "parcel build ./client/bundle.js --no-minify --no-source-maps --out-dir ./static"
   },
   "keywords": [],
   "author": "",
