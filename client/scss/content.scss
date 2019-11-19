@@ -1,0 +1,40 @@
+@import "variables";
+
+#content {
+  margin-left: $sidebar-width;
+  transition: all 0.3s;
+}
+  
+#content.large {
+  margin-left: $sidebar-small-width;
+  transition: all 0.3s;
+}
+
+#content .item.active {
+  display: block;
+}
+
+#content .item {
+  display: none;
+}
+
+#content #dashboard1 #sensor_data {
+  width: 100%;
+  height: 500px;
+}
+
+#content #dashboard1 #sensor_dist {
+  width: 100%;
+  height: 500px;
+}
+
+#content #dashboard1 #sensor_dist2 {
+  width: 100%;
+  height: 500px;
+}
+
+@media (max-width: 768px) {
+  #content {
+    margin-left: $sidebar-small-width;
+  }  
+}
