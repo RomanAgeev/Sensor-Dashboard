@@ -1,5 +1,3 @@
-import sidebar from './sidebar';
-import { dashboard } from './dashboard';
+import layout from './layout';
 
-window.sidebar = sidebar;
-window.dashboard = dashboard;
+window.layout = layout;

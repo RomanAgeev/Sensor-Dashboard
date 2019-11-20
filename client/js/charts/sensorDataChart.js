@@ -7,9 +7,6 @@ export const sensorDataChart = (Highcharts => (sensorName, sensorData, placehold
             text: `${sensorName} data`,
         },
         xAxis: {
-            title: {
-                text: 'sample',
-            }
         },
         yAxis: {
             title: {

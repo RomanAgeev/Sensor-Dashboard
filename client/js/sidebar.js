@@ -1,10 +1,12 @@
-const sidebar = ($ => (initialItem, itemSelected) => {
-    function selectItem(itemId) {
+export const sidebar = ($ => (placeholderName, initialItem, itemSelected) => {
+    const placeholderId = `#${placeholderName}`;
+
+    const selectItem = itemId => {
         if (!itemId) {
             return;
         }
 
-        $('#sidebar .item').each(function() {
+        $(`${placeholderId} .item`).each(function() {
             if ($(this).data('item') === itemId) {
                 $(this).addClass('active');
             } else {
@@ -15,27 +17,25 @@ const sidebar = ($ => (initialItem, itemSelected) => {
         itemSelected(itemId);
     }
 
-    $('#sidebar .item').each(function() {
+    $(`${placeholderId} .item`).each(function() {
         $(this).on('click', function(e) {
             selectItem($(e.target).data('item'));
         });
     });
 
-    $('#sidebar .collapse-button').on('click', function() {
-        $('#sidebar').removeClass('visible');
+    $(`${placeholderId} .collapse-button`).on('click', function() {
+        $(placeholderId).removeClass('visible');
     });
 
-    $('#sidebar-small .expand-button').on('click', function() {
-        $('#sidebar').addClass('visible');
+    $(`${placeholderId}-small .expand-button`).on('click', function() {
+        $(placeholderId).addClass('visible');
     });
 
     $(window).resize(function() {
         if(window.innerWidth <= 768) {
-            $('#sidebar').removeClass('visible');
+            $(placeholderId).removeClass('visible');
         }
-    })
+    });
 
     selectItem(initialItem);
 })(jQuery);
-
-export default sidebar;

@@ -125,16 +125,18 @@ parcelRequire = (function (modules, cache, entry, globalName) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.default = void 0;
+exports.sidebar = void 0;
 
 var sidebar = function ($) {
-  return function (initialItem, itemSelected) {
-    function selectItem(itemId) {
+  return function (placeholderName, initialItem, itemSelected) {
+    var placeholderId = "#".concat(placeholderName);
+
+    var selectItem = function selectItem(itemId) {
       if (!itemId) {
         return;
       }
 
-      $('#sidebar .item').each(function () {
+      $("".concat(placeholderId, " .item")).each(function () {
         if ($(this).data('item') === itemId) {
           $(this).addClass('active');
         } else {
@@ -142,30 +144,29 @@ var sidebar = function ($) {
         }
       });
       itemSelected(itemId);
-    }
+    };
 
-    $('#sidebar .item').each(function () {
+    $("".concat(placeholderId, " .item")).each(function () {
       $(this).on('click', function (e) {
         selectItem($(e.target).data('item'));
       });
     });
-    $('#sidebar .collapse-button').on('click', function () {
-      $('#sidebar').removeClass('visible');
+    $("".concat(placeholderId, " .collapse-button")).on('click', function () {
+      $(placeholderId).removeClass('visible');
     });
-    $('#sidebar-small .expand-button').on('click', function () {
-      $('#sidebar').addClass('visible');
+    $("".concat(placeholderId, "-small .expand-button")).on('click', function () {
+      $(placeholderId).addClass('visible');
     });
     $(window).resize(function () {
       if (window.innerWidth <= 768) {
-        $('#sidebar').removeClass('visible');
+        $(placeholderId).removeClass('visible');
       }
     });
     selectItem(initialItem);
   };
 }(jQuery);
 
-var _default = sidebar;
-exports.default = _default;
+exports.sidebar = sidebar;
 },{}],"SWXj":[function(require,module,exports) {
 "use strict";
 
@@ -288,11 +289,7 @@ var sensorDataChart = function (Highcharts) {
       title: {
         text: "".concat(sensorName, " data")
       },
-      xAxis: {
-        title: {
-          text: 'sample'
-        }
-      },
+      xAxis: {},
       yAxis: {
         title: {
           text: 'value'
@@ -308,7 +305,44 @@ var sensorDataChart = function (Highcharts) {
 }(Highcharts);
 
 exports.sensorDataChart = sensorDataChart;
-},{}],"C0ac":[function(require,module,exports) {
+},{}],"vJCU":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.sensorBoxChart = void 0;
+
+var _dataEngine = require("../dataEngine");
+
+var sensorBoxChart = function (Highcharts) {
+  return function (sensorName, data, placeholderId) {
+    var chartOptions = {
+      chart: {
+        type: 'boxplot'
+      },
+      title: {
+        text: "".concat(sensorName, " data distribution by class")
+      },
+      xAxis: {
+        categories: ['class 1', 'class -1']
+      },
+      yAxis: {
+        title: {
+          text: 'values'
+        }
+      },
+      series: [{
+        data: (0, _dataEngine.calcSensorBox)(data, 'sensor0'),
+        name: sensorName
+      }]
+    };
+    Highcharts.chart(placeholderId, chartOptions);
+  };
+}(Highcharts);
+
+exports.sensorBoxChart = sensorBoxChart;
+},{"../dataEngine":"YLGK"}],"C0ac":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -326,7 +360,19 @@ Object.keys(_sensorDataChart).forEach(function (key) {
     }
   });
 });
-},{"./sensorDataChart":"iLUa"}],"DJma":[function(require,module,exports) {
+
+var _sensorBoxChart = require("./sensorBoxChart");
+
+Object.keys(_sensorBoxChart).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _sensorBoxChart[key];
+    }
+  });
+});
+},{"./sensorDataChart":"iLUa","./sensorBoxChart":"vJCU"}],"DJma":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -370,30 +416,7 @@ var dashboard = function (Highcharts) {
       var sensor_data = _ref.sensor_data;
       var sensor0 = sensor_data.sensor0;
       var sensor1 = sensor_data.sensor1;
-      var sensor2 = sensor_data.sensor2; // const sensorDataChart = getChart('Sensor 0 data', 'line');
-      // sensorDataChart.series[0].data = sensor0;
-
-      var sensorBoxChart = {
-        chart: {
-          type: 'boxplot'
-        },
-        title: {
-          text: name
-        },
-        xAxis: {
-          categories: ['class 1', 'class -1']
-        },
-        yAxis: {
-          title: {
-            text: 'values'
-          }
-        },
-        series: [{
-          name: 'boxes'
-        }]
-      };
-      var data = (0, _dataEngine.calcSensorBox)(sensor_data, 'sensor0');
-      sensorBoxChart.series[0].data = data;
+      var sensor2 = sensor_data.sensor2;
       var step = 0.1;
       var sensorDistChart = getChart('Sensor 0 dist', 'column');
       var sensor0Dist = sensor0.reduce(function (acc, value) {
@@ -421,27 +444,61 @@ var dashboard = function (Highcharts) {
         name: 'sensor2',
         data: sensor2Dist
       }];
-      (0, _charts.sensorDataChart)('sensor 0', sensor0, 'sensor_data'); // Highcharts.chart('sensor_data', sensorDataChart);
-
-      Highcharts.chart('sensor_dist', sensorBoxChart);
+      (0, _charts.sensorDataChart)('sensor 0', sensor0, 'sensor_data');
+      (0, _charts.sensorBoxChart)('sensor 0', sensor_data, 'sensor_dist');
       Highcharts.chart('sensor_dist2', sensorDistChart);
     });
   };
 }(Highcharts);
 
 exports.dashboard = dashboard;
-},{"./dataService":"SWXj","./dataEngine":"YLGK","./charts":"C0ac"}],"QvaY":[function(require,module,exports) {
+},{"./dataService":"SWXj","./dataEngine":"YLGK","./charts":"C0ac"}],"dXr0":[function(require,module,exports) {
 "use strict";
 
-var _sidebar = _interopRequireDefault(require("./sidebar"));
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _sidebar = require("./sidebar");
 
 var _dashboard = require("./dashboard");
 
+var initialDashoard = 'dashboard1';
+
+var layout = function ($) {
+  return function (sidebarName, contentName) {
+    var contentId = "#".concat(contentName);
+
+    var onItemSelected = function onItemSelected(itemId) {
+      $("".concat(contentId, " .item")).each(function () {
+        if ($(this).attr('id') === itemId) {
+          $(this).addClass('active');
+        } else {
+          $(this).removeClass('active');
+        }
+      });
+    };
+
+    (0, _sidebar.sidebar)(sidebarName, initialDashoard, onItemSelected);
+    (0, _dashboard.dashboard)();
+  };
+}(jQuery);
+
+var _default = layout;
+exports.default = _default;
+},{"./sidebar":"Hn3T","./dashboard":"DJma"}],"QvaY":[function(require,module,exports) {
+"use strict";
+
+var _layout = _interopRequireDefault(require("./layout"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-window.sidebar = _sidebar.default;
-window.dashboard = _dashboard.dashboard;
-},{"./sidebar":"Hn3T","./dashboard":"DJma"}],"C4Nx":[function(require,module,exports) {
+window.layout = _layout.default; // import sidebar from './sidebar';
+// import { dashboard } from './dashboard';
+// window.sidebar = sidebar;
+// window.dashboard = dashboard;
+},{"./layout":"dXr0"}],"C4Nx":[function(require,module,exports) {
 "use strict";
 
 require("./scss/index.scss");

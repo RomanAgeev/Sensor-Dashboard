@@ -1,6 +1,6 @@
 import { getRawData, getAllSensorsData } from './dataService';
 import { calcSensorBox } from './dataEngine';
-import { sensorDataChart } from './charts';
+import { sensorDataChart, sensorBoxChart } from './charts';
 
 export const dashboard = (function(Highcharts) {
     return function() {
@@ -35,31 +35,7 @@ export const dashboard = (function(Highcharts) {
                 const sensor0 = sensor_data.sensor0
                 const sensor1 = sensor_data.sensor1;
                 const sensor2 = sensor_data.sensor2;
-
-                const sensorBoxChart = {
-                    chart: {
-                        type: 'boxplot'
-                    },
-                    title: {
-                        text: name
-                    },
-                    xAxis: {
-                        categories: ['class 1', 'class -1']
-                    },
-                    yAxis: {
-                        title: {
-                            text: 'values'
-                        }
-                    },
-                    series: [{
-                        name: 'boxes'
-                    }]
-                };
-
-                 const data = calcSensorBox(sensor_data, 'sensor0');
-
-                sensorBoxChart.series[0].data = data;
-
+                
                 const step = 0.1;
                 
                 const sensorDistChart = getChart('Sensor 0 dist', 'column');
@@ -90,8 +66,8 @@ export const dashboard = (function(Highcharts) {
                 }];
 
                 sensorDataChart('sensor 0', sensor0, 'sensor_data');
+                sensorBoxChart('sensor 0', sensor_data, 'sensor_dist');
 
-                Highcharts.chart('sensor_dist', sensorBoxChart);
                 Highcharts.chart('sensor_dist2', sensorDistChart);
             });
     };
