@@ -2,8 +2,6 @@ import { sidebar } from './sidebar';
 import { fetchData } from './channel';
 import { dashboardFactory } from './dashboards';
 
-const initialDashoard = 'distributionDashboard';
-
 const layout = ($ => async (sidebarName, contentName) => {
     const contentId = `#${contentName}`;
     
@@ -34,15 +32,12 @@ const layout = ($ => async (sidebarName, contentName) => {
     };
 
     const bar = sidebar(sidebarName, onItemSelected);
-    
-    try {
-        data = await fetchData();
-    } catch (e) {
-        console.warn(e);
-        return;
-    }
 
-    bar.selectItem(initialDashoard);
+    data = await fetchData();
+
+    return {
+        selectDashboard: bar.selectItem,
+    };
 })(jQuery);
 
 export default layout;

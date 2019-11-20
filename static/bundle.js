@@ -443,8 +443,6 @@ var _channel = require("./channel");
 
 var _dashboards = require("./dashboards");
 
-var initialDashoard = 'distributionDashboard';
-
 var layout = function ($) {
   return function _callee(sidebarName, contentName) {
     var contentId, dashboardMap, data, initDashboard, onItemSelected, bar;
@@ -481,30 +479,21 @@ var layout = function ($) {
             };
 
             bar = (0, _sidebar.sidebar)(sidebarName, onItemSelected);
-            _context.prev = 6;
-            _context.next = 9;
+            _context.next = 8;
             return regeneratorRuntime.awrap((0, _channel.fetchData)());
 
-          case 9:
+          case 8:
             data = _context.sent;
-            _context.next = 16;
-            break;
+            return _context.abrupt("return", {
+              selectDashboard: bar.selectItem
+            });
 
-          case 12:
-            _context.prev = 12;
-            _context.t0 = _context["catch"](6);
-            console.warn(_context.t0);
-            return _context.abrupt("return");
-
-          case 16:
-            bar.selectItem(initialDashoard);
-
-          case 17:
+          case 10:
           case "end":
             return _context.stop();
         }
       }
-    }, null, null, [[6, 12]]);
+    });
   };
 }(jQuery);
 

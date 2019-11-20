@@ -3,7 +3,9 @@
 
 <script type="text/javascript">
     $(function() {
-        layout('sidebar', 'content');
+        layout('sidebar', 'content')
+            .then(app => app.selectDashboard('distributionDashboard'))
+            .catch(err => console.warn(err));
     });
 </script>
 
