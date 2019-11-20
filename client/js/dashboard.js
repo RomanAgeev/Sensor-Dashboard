@@ -1,5 +1,6 @@
 import { getRawData, getAllSensorsData } from './dataService';
 import { calcSensorBox } from './dataEngine';
+import { sensorDataChart } from './charts';
 
 export const dashboard = (function(Highcharts) {
     return function() {
@@ -34,9 +35,6 @@ export const dashboard = (function(Highcharts) {
                 const sensor0 = sensor_data.sensor0
                 const sensor1 = sensor_data.sensor1;
                 const sensor2 = sensor_data.sensor2;
-
-                const sensorDataChart = getChart('Sensor 0 data', 'line');
-                sensorDataChart.series[0].data = sensor0;
 
                 const sensorBoxChart = {
                     chart: {
@@ -91,7 +89,8 @@ export const dashboard = (function(Highcharts) {
                     data: sensor2Dist
                 }];
 
-                Highcharts.chart('sensor_data', sensorDataChart);
+                sensorDataChart('sensor 0', sensor0, 'sensor_data');
+
                 Highcharts.chart('sensor_dist', sensorBoxChart);
                 Highcharts.chart('sensor_dist2', sensorDistChart);
             });

@@ -271,7 +271,62 @@ var calcMedian = function calcMedian(values, minIndex, maxIndex) {
   var median = (values[leftIndex] + values[rightIndex]) / 2;
   return [median, leftIndex, rightIndex];
 };
-},{}],"DJma":[function(require,module,exports) {
+},{}],"iLUa":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.sensorDataChart = void 0;
+
+var sensorDataChart = function (Highcharts) {
+  return function (sensorName, sensorData, placeholderId) {
+    var chartOptions = {
+      chart: {
+        type: 'line'
+      },
+      title: {
+        text: "".concat(sensorName, " data")
+      },
+      xAxis: {
+        title: {
+          text: 'sample'
+        }
+      },
+      yAxis: {
+        title: {
+          text: 'value'
+        }
+      },
+      series: [{
+        data: sensorData,
+        name: sensorName
+      }]
+    };
+    Highcharts.chart(placeholderId, chartOptions);
+  };
+}(Highcharts);
+
+exports.sensorDataChart = sensorDataChart;
+},{}],"C0ac":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _sensorDataChart = require("./sensorDataChart");
+
+Object.keys(_sensorDataChart).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _sensorDataChart[key];
+    }
+  });
+});
+},{"./sensorDataChart":"iLUa"}],"DJma":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -282,6 +337,8 @@ exports.dashboard = void 0;
 var _dataService = require("./dataService");
 
 var _dataEngine = require("./dataEngine");
+
+var _charts = require("./charts");
 
 var dashboard = function (Highcharts) {
   return function () {
@@ -313,9 +370,9 @@ var dashboard = function (Highcharts) {
       var sensor_data = _ref.sensor_data;
       var sensor0 = sensor_data.sensor0;
       var sensor1 = sensor_data.sensor1;
-      var sensor2 = sensor_data.sensor2;
-      var sensorDataChart = getChart('Sensor 0 data', 'line');
-      sensorDataChart.series[0].data = sensor0;
+      var sensor2 = sensor_data.sensor2; // const sensorDataChart = getChart('Sensor 0 data', 'line');
+      // sensorDataChart.series[0].data = sensor0;
+
       var sensorBoxChart = {
         chart: {
           type: 'boxplot'
@@ -334,20 +391,7 @@ var dashboard = function (Highcharts) {
         series: [{
           name: 'boxes'
         }]
-      }; // const class_plus1 = [];
-      // const class_minus1 = [];
-      // sensor0.forEach((value, index) => {
-      //     if (sensor_data.class_label[index] === 1) {
-      //         class_plus1.push(value);
-      //     } else if(sensor_data.class_label[index] === -1) {
-      //         class_minus1.push(value);
-      //     }
-      // });
-      // const data = [
-      //     calcBox(class_plus1),
-      //     calcBox(class_minus1)
-      // ];
-
+      };
       var data = (0, _dataEngine.calcSensorBox)(sensor_data, 'sensor0');
       sensorBoxChart.series[0].data = data;
       var step = 0.1;
@@ -377,7 +421,8 @@ var dashboard = function (Highcharts) {
         name: 'sensor2',
         data: sensor2Dist
       }];
-      Highcharts.chart('sensor_data', sensorDataChart);
+      (0, _charts.sensorDataChart)('sensor 0', sensor0, 'sensor_data'); // Highcharts.chart('sensor_data', sensorDataChart);
+
       Highcharts.chart('sensor_dist', sensorBoxChart);
       Highcharts.chart('sensor_dist2', sensorDistChart);
     });
@@ -385,7 +430,7 @@ var dashboard = function (Highcharts) {
 }(Highcharts);
 
 exports.dashboard = dashboard;
-},{"./dataService":"SWXj","./dataEngine":"YLGK"}],"QvaY":[function(require,module,exports) {
+},{"./dataService":"SWXj","./dataEngine":"YLGK","./charts":"C0ac"}],"QvaY":[function(require,module,exports) {
 "use strict";
 
 var _sidebar = _interopRequireDefault(require("./sidebar"));
