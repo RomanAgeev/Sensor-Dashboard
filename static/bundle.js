@@ -412,7 +412,7 @@ var correlationDashboard = function (Highcharts) {
 }(Highcharts);
 
 exports.correlationDashboard = correlationDashboard;
-},{"../charts":"C0ac"}],"bbkP":[function(require,module,exports) {
+},{"../charts":"C0ac"}],"uXW5":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -429,25 +429,7 @@ var dashboardFactory = {
   correlationDashboard: _correlationDashboard.correlationDashboard
 };
 exports.dashboardFactory = dashboardFactory;
-},{"./distributionDashboard":"HdBL","./correlationDashboard":"LZKf"}],"uXW5":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _dashboardFactory = require("./dashboardFactory");
-
-Object.keys(_dashboardFactory).forEach(function (key) {
-  if (key === "default" || key === "__esModule") return;
-  Object.defineProperty(exports, key, {
-    enumerable: true,
-    get: function () {
-      return _dashboardFactory[key];
-    }
-  });
-});
-},{"./dashboardFactory":"bbkP"}],"dXr0":[function(require,module,exports) {
+},{"./distributionDashboard":"HdBL","./correlationDashboard":"LZKf"}],"dXr0":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
