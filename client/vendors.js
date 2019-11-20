@@ -6,6 +6,7 @@ window.$ = window.jQuery = $;
 
 import 'bootstrap';
 import 'popper.js';
+import 'babel-polyfill';
 
 import Highcharts from 'highcharts';
 import more from 'highcharts/highcharts-more';
