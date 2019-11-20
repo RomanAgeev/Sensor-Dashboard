@@ -17,9 +17,12 @@
 
     <ul class="list-unstyled">
         <li>
-            <span class="item" data-item="dashboard1">Dashboard 1</span>
+            <span class="item" data-item="distributionDashboard">Distribution Dashboard</span>
         </li>
         <li>
+            <span class="item" data-item="correlationDashboard">Correlation Dashboard</span>
+        </li>
+        <!-- <li>
             <a href="#dashboards2" data-toggle="collapse" aria-expanded="false" class="groupitem dropdown-toggle">Dashboards 2</a>
             <ul class="collapse list-unstyled" id="dashboards2">
                 <li>
@@ -35,20 +38,19 @@
         </li>
         <li>
             <span class="item" data-item="dashboard3">Dashboard 3</span>
-        </li>
-        <li>
-            <span class="item" data-item="dashboard4">Dashboard 4</span>
-        </li>
+        </li> -->
     </ul>
 </nav>
 
 <div id="content">
-    <div id="dashboard1" class="item">
+    <div id="distributionDashboard" class="item">
         <div id="sensor_data"></div>
         <div id="sensor_dist"></div>
-        <div id="sensor_dist2"></div>
     </div>
-    <div id="dashboard2.1" class="item">
+    <div id="correlationDashboard" class="item">
+        <div id="sensor_data2"></div>
+    </div>    
+    <!-- <div id="dashboard2.1" class="item">
         Dashboard 2.1
     </div>
     <div id="dashboard2.2" class="item">
@@ -59,10 +61,7 @@
     </div>    
     <div id="dashboard3" class="item">
         Dashboard 3
-    </div>
-    <div id="dashboard4" class="item">
-        Dashboard 4
-    </div>    
+    </div> -->
 </div>
 
 {% endblock %}

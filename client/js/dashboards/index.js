@@ -1,1 +1,1 @@
-export * from './distributionDashboard';
+export * from './dashboardFactory';

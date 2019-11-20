@@ -1,4 +1,4 @@
-export const sidebar = ($ => (placeholderName, initialItem, itemSelected) => {
+export const sidebar = ($ => (placeholderName, itemSelected) => {
     const placeholderId = `#${placeholderName}`;
 
     const selectItem = itemId => {
@@ -37,5 +37,7 @@ export const sidebar = ($ => (placeholderName, initialItem, itemSelected) => {
         }
     });
 
-    selectItem(initialItem);
+    return {
+        selectItem,
+    };
 })(jQuery);

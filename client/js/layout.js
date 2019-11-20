@@ -1,11 +1,26 @@
 import { sidebar } from './sidebar';
 import { fetchData } from './channel';
-import { distributionDashboard } from './dashboards';
+import { dashboardFactory } from './dashboards';
 
-const initialDashoard = 'dashboard1';
+const initialDashoard = 'distributionDashboard';
 
 const layout = ($ => async (sidebarName, contentName) => {
     const contentId = `#${contentName}`;
+    
+    const dashboardMap = new Map();
+
+    let data = null;
+
+    const initDashboard = dashboardId => {
+        if (dashboardMap.has(dashboardId)) {
+            return;
+        }
+
+        const factory = dashboardFactory[dashboardId];
+        if (factory) {
+            dashboardMap.set(dashboardId, factory(data));
+        }
+    };
 
     const onItemSelected = itemId => {
         $(`${contentId} .item`).each(function() {
@@ -14,12 +29,12 @@ const layout = ($ => async (sidebarName, contentName) => {
             } else {
                 $(this).removeClass('active');
             }
+            initDashboard(itemId);
         });
     };
 
-    sidebar(sidebarName, initialDashoard, onItemSelected);
-
-    let data = null;
+    const bar = sidebar(sidebarName, onItemSelected);
+    
     try {
         data = await fetchData();
     } catch (e) {
@@ -27,7 +42,7 @@ const layout = ($ => async (sidebarName, contentName) => {
         return;
     }
 
-    distributionDashboard(data);
+    bar.selectItem(initialDashoard);
 })(jQuery);
 
 export default layout;

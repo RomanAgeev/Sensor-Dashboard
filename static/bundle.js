@@ -128,7 +128,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.sidebar = void 0;
 
 var sidebar = function ($) {
-  return function (placeholderName, initialItem, itemSelected) {
+  return function (placeholderName, itemSelected) {
     var placeholderId = "#".concat(placeholderName);
 
     var selectItem = function selectItem(itemId) {
@@ -162,7 +162,9 @@ var sidebar = function ($) {
         $(placeholderId).removeClass('visible');
       }
     });
-    selectItem(initialItem);
+    return {
+      selectItem: selectItem
+    };
   };
 }(jQuery);
 
@@ -199,19 +201,7 @@ var fetchData = function fetchData() {
       }
     }
   });
-}; // let rawData = null;
-// export const getRawData = () => {
-//     if (rawData) {
-//         return Promise.resolve(rawData)
-//     }
-//     return fetch('/data')
-//         .then(res => res.json())
-//         .then(data => {
-//             rawData = data;
-//             return data;
-//         });
-// };
-// export const getAllSensorsData = () =>
+}; // export const getAllSensorsData = () =>
 //     getRawData()
 //         .then(({ sensor_data }) =>
 //             Object.getOwnPropertyNames(sensor_data)
@@ -404,25 +394,60 @@ var distributionDashboard = function (Highcharts) {
 }(Highcharts);
 
 exports.distributionDashboard = distributionDashboard;
-},{"../charts":"C0ac"}],"uXW5":[function(require,module,exports) {
+},{"../charts":"C0ac"}],"LZKf":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.correlationDashboard = void 0;
+
+var _charts = require("../charts");
+
+var correlationDashboard = function (Highcharts) {
+  return function (data) {
+    var dataChart = (0, _charts.sensorDataChart)('sensor 0', data.sensor_data.sensor0);
+    Highcharts.chart('sensor_data2', dataChart);
+  };
+}(Highcharts);
+
+exports.correlationDashboard = correlationDashboard;
+},{"../charts":"C0ac"}],"bbkP":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.dashboardFactory = void 0;
+
+var _distributionDashboard = require("./distributionDashboard");
+
+var _correlationDashboard = require("./correlationDashboard");
+
+var dashboardFactory = {
+  distributionDashboard: _distributionDashboard.distributionDashboard,
+  correlationDashboard: _correlationDashboard.correlationDashboard
+};
+exports.dashboardFactory = dashboardFactory;
+},{"./distributionDashboard":"HdBL","./correlationDashboard":"LZKf"}],"uXW5":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _distributionDashboard = require("./distributionDashboard");
+var _dashboardFactory = require("./dashboardFactory");
 
-Object.keys(_distributionDashboard).forEach(function (key) {
+Object.keys(_dashboardFactory).forEach(function (key) {
   if (key === "default" || key === "__esModule") return;
   Object.defineProperty(exports, key, {
     enumerable: true,
     get: function () {
-      return _distributionDashboard[key];
+      return _dashboardFactory[key];
     }
   });
 });
-},{"./distributionDashboard":"HdBL"}],"dXr0":[function(require,module,exports) {
+},{"./dashboardFactory":"bbkP"}],"dXr0":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -436,16 +461,30 @@ var _channel = require("./channel");
 
 var _dashboards = require("./dashboards");
 
-var initialDashoard = 'dashboard1';
+var initialDashoard = 'distributionDashboard';
 
 var layout = function ($) {
   return function _callee(sidebarName, contentName) {
-    var contentId, onItemSelected, data;
+    var contentId, dashboardMap, data, initDashboard, onItemSelected, bar;
     return regeneratorRuntime.async(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
             contentId = "#".concat(contentName);
+            dashboardMap = new Map();
+            data = null;
+
+            initDashboard = function initDashboard(dashboardId) {
+              if (dashboardMap.has(dashboardId)) {
+                return;
+              }
+
+              var factory = _dashboards.dashboardFactory[dashboardId];
+
+              if (factory) {
+                dashboardMap.set(dashboardId, factory(data));
+              }
+            };
 
             onItemSelected = function onItemSelected(itemId) {
               $("".concat(contentId, " .item")).each(function () {
@@ -454,35 +493,36 @@ var layout = function ($) {
                 } else {
                   $(this).removeClass('active');
                 }
+
+                initDashboard(itemId);
               });
             };
 
-            (0, _sidebar.sidebar)(sidebarName, initialDashoard, onItemSelected);
-            data = null;
-            _context.prev = 4;
-            _context.next = 7;
+            bar = (0, _sidebar.sidebar)(sidebarName, onItemSelected);
+            _context.prev = 6;
+            _context.next = 9;
             return regeneratorRuntime.awrap((0, _channel.fetchData)());
 
-          case 7:
+          case 9:
             data = _context.sent;
-            _context.next = 14;
+            _context.next = 16;
             break;
 
-          case 10:
-            _context.prev = 10;
-            _context.t0 = _context["catch"](4);
+          case 12:
+            _context.prev = 12;
+            _context.t0 = _context["catch"](6);
             console.warn(_context.t0);
             return _context.abrupt("return");
 
-          case 14:
-            (0, _dashboards.distributionDashboard)(data); // dashboard();
+          case 16:
+            bar.selectItem(initialDashoard);
 
-          case 15:
+          case 17:
           case "end":
             return _context.stop();
         }
       }
-    }, null, null, [[4, 10]]);
+    }, null, null, [[6, 12]]);
   };
 }(jQuery);
 
