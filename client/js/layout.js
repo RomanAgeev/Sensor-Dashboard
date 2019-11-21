@@ -16,7 +16,7 @@ const layout = ($ => async (sidebarName, contentName) => {
 
         const factory = dashboardFactory[dashboardId];
         if (factory) {
-            dashboardMap.set(dashboardId, factory(data));
+            dashboardMap.set(dashboardId, factory(data, dashboardId));
         }
     };
 

@@ -201,21 +201,23 @@ var fetchData = function fetchData() {
       }
     }
   });
-}; // export const getAllSensorsData = () =>
-//     getRawData()
-//         .then(({ sensor_data }) =>
-//             Object.getOwnPropertyNames(sensor_data)
-//                 .map(name => /^sensor(\d+)$/g.exec(name))
-//                 .filter(match => match !== null) 
-//                 .reduce((acc, match) => {
-//                     const name = match[0];
-//                     const pos = match[1];
-//                     acc[pos] = sensor_data[name];
-//                     return acc;
-//                 }, []));
-
+};
 
 exports.fetchData = fetchData;
+},{}],"D21K":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getChartColor = void 0;
+
+var getChartColor = function getChartColor(index) {
+  return chartColors[index % chartColors.length];
+};
+
+exports.getChartColor = getChartColor;
+var chartColors = ['#7cb5ec', '#434348', '#90ed7d', '#f7a35c', '#8085e9', '#f15c80', '#e4d354', '#2b908f', '#f45b5b', '#91e8e1'];
 },{}],"iLUa":[function(require,module,exports) {
 "use strict";
 
@@ -224,7 +226,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.sensorDataChart = void 0;
 
-var sensorDataChart = function sensorDataChart(sensorName, sensorData) {
+var _chartUtils = require("./chartUtils");
+
+var sensorDataChart = function sensorDataChart(sensorName, index, sensorData) {
   return {
     chart: {
       type: 'line'
@@ -234,25 +238,60 @@ var sensorDataChart = function sensorDataChart(sensorName, sensorData) {
     },
     xAxis: {},
     yAxis: {
+      min: 0,
       title: {
         text: 'value'
       }
     },
     series: [{
       data: sensorData,
-      name: sensorName
+      name: sensorName,
+      color: (0, _chartUtils.getChartColor)(index)
     }]
   };
 };
 
 exports.sensorDataChart = sensorDataChart;
-},{}],"YLGK":[function(require,module,exports) {
+},{"./chartUtils":"D21K"}],"YLGK":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.calcSensorBox = void 0;
+exports.calcMedian = exports.getSensorNames = void 0;
+
+var getSensorNames = function getSensorNames(data) {
+  return Object.getOwnPropertyNames(data.sensor_data).map(function (name) {
+    return /^sensor(\d+)$/g.exec(name);
+  }).filter(function (match) {
+    return match !== null;
+  }).map(function (match) {
+    return match[0];
+  });
+};
+
+exports.getSensorNames = getSensorNames;
+
+var calcMedian = function calcMedian(values, minIndex, maxIndex) {
+  var center = minIndex + (maxIndex - minIndex) / 2;
+  var leftIndex = Math.floor(center);
+  var rightIndex = Math.ceil(center);
+  var median = (values[leftIndex] + values[rightIndex]) / 2;
+  return [median, leftIndex, rightIndex];
+};
+
+exports.calcMedian = calcMedian;
+},{}],"vJCU":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.sensorBoxChart = void 0;
+
+var _chartUtils = require("./chartUtils");
+
+var _dataEngine = require("../dataEngine");
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
@@ -261,6 +300,33 @@ function _nonIterableRest() { throw new TypeError("Invalid attempt to destructur
 function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+var sensorBoxChart = function sensorBoxChart(sensorName, index, data) {
+  return {
+    chart: {
+      type: 'boxplot'
+    },
+    title: {
+      text: "".concat(sensorName, " data distribution by class")
+    },
+    xAxis: {
+      categories: ['class 1', 'class -1']
+    },
+    yAxis: {
+      min: 0,
+      title: {
+        text: 'values'
+      }
+    },
+    series: [{
+      data: calcSensorBox(data, sensorName),
+      name: sensorName,
+      color: (0, _chartUtils.getChartColor)(index)
+    }]
+  };
+};
+
+exports.sensorBoxChart = sensorBoxChart;
 
 var calcSensorBox = function calcSensorBox(data, sensorName) {
   var sensorData = data[sensorName];
@@ -287,64 +353,20 @@ var calcSensorBox = function calcSensorBox(data, sensorName) {
   return [calcBox(classPos), calcBox(classNeg)];
 };
 
-exports.calcSensorBox = calcSensorBox;
-
 var calcBox = function calcBox(values) {
   values.sort();
 
-  var _calcMedian = calcMedian(values, 0, values.length - 1),
+  var _calcMedian = (0, _dataEngine.calcMedian)(values, 0, values.length - 1),
       _calcMedian2 = _slicedToArray(_calcMedian, 3),
       median = _calcMedian2[0],
       medianIndexLeft = _calcMedian2[1],
       medianIndexRight = _calcMedian2[2];
 
-  var leftQuart = calcMedian(values, 0, medianIndexLeft - 1)[0];
-  var rightQuart = calcMedian(values, medianIndexRight + 1, values.length - 1)[0];
+  var leftQuart = (0, _dataEngine.calcMedian)(values, 0, medianIndexLeft - 1)[0];
+  var rightQuart = (0, _dataEngine.calcMedian)(values, medianIndexRight + 1, values.length - 1)[0];
   return [values[0], leftQuart, median, rightQuart, values[values.length - 1]];
 };
-
-var calcMedian = function calcMedian(values, minIndex, maxIndex) {
-  var center = minIndex + (maxIndex - minIndex) / 2;
-  var leftIndex = Math.floor(center);
-  var rightIndex = Math.ceil(center);
-  var median = (values[leftIndex] + values[rightIndex]) / 2;
-  return [median, leftIndex, rightIndex];
-};
-},{}],"vJCU":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.sensorBoxChart = void 0;
-
-var _dataEngine = require("../dataEngine");
-
-var sensorBoxChart = function sensorBoxChart(sensorName, data) {
-  return {
-    chart: {
-      type: 'boxplot'
-    },
-    title: {
-      text: "".concat(sensorName, " data distribution by class")
-    },
-    xAxis: {
-      categories: ['class 1', 'class -1']
-    },
-    yAxis: {
-      title: {
-        text: 'values'
-      }
-    },
-    series: [{
-      data: (0, _dataEngine.calcSensorBox)(data, 'sensor0'),
-      name: sensorName
-    }]
-  };
-};
-
-exports.sensorBoxChart = sensorBoxChart;
-},{"../dataEngine":"YLGK"}],"C0ac":[function(require,module,exports) {
+},{"./chartUtils":"D21K","../dataEngine":"YLGK"}],"C0ac":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -384,17 +406,49 @@ exports.distributionDashboard = void 0;
 
 var _charts = require("../charts");
 
-var distributionDashboard = function (Highcharts) {
-  return function (data) {
-    var dataChart = (0, _charts.sensorDataChart)('sensor 0', data.sensor_data.sensor0);
-    var boxChart = (0, _charts.sensorBoxChart)('sensor 0', data.sensor_data);
-    Highcharts.chart('sensor_data', dataChart);
-    Highcharts.chart('sensor_dist', boxChart);
+var _dataEngine = require("../dataEngine");
+
+var distributionDashboard = function (Highcharts, $) {
+  return function (data, dashboardName) {
+    var dashboardId = "#".concat(dashboardName);
+
+    var sensorPlace = function sensorPlace() {
+      return $('<div/>').css({
+        width: '100%',
+        height: '500px'
+      });
+    };
+
+    var sensorDataPlace = function sensorDataPlace(sensorName) {
+      return $('<div/>').attr('id', "".concat(sensorName, "-data")).css({
+        'display': 'inline-block',
+        'width': '70%',
+        'height': '100%'
+      });
+    };
+
+    var sensorBoxPlace = function sensorBoxPlace(sensorName) {
+      return $('<div/>').attr('id', "".concat(sensorName, "-box")).css({
+        'display': 'inline-block',
+        'width': '30%',
+        'height': '100%'
+      });
+    };
+
+    (0, _dataEngine.getSensorNames)(data).forEach(function (sensorName, index) {
+      var $sensorPlace = sensorPlace().appendTo(dashboardId);
+      sensorDataPlace(sensorName).appendTo($sensorPlace);
+      sensorBoxPlace(sensorName).appendTo($sensorPlace);
+      var dataChart = (0, _charts.sensorDataChart)(sensorName, index, data.sensor_data[sensorName]);
+      var boxChart = (0, _charts.sensorBoxChart)(sensorName, index, data.sensor_data);
+      Highcharts.chart("".concat(sensorName, "-data"), dataChart);
+      Highcharts.chart("".concat(sensorName, "-box"), boxChart);
+    });
   };
-}(Highcharts);
+}(Highcharts, jQuery);
 
 exports.distributionDashboard = distributionDashboard;
-},{"../charts":"C0ac"}],"LZKf":[function(require,module,exports) {
+},{"../charts":"C0ac","../dataEngine":"YLGK"}],"LZKf":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -462,7 +516,7 @@ var layout = function ($) {
               var factory = _dashboards.dashboardFactory[dashboardId];
 
               if (factory) {
-                dashboardMap.set(dashboardId, factory(data));
+                dashboardMap.set(dashboardId, factory(data, dashboardId));
               }
             };
 
