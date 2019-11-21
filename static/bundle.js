@@ -501,14 +501,40 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.correlationDashboard = void 0;
 
-var _charts = require("../charts");
+var _dataEngine = require("../dataEngine");
 
-var correlationDashboard = function (Highcharts) {
-  return function (data, derivatives, dashboardId) {};
-}(Highcharts);
+var correlationDashboard = function (Highcharts, $) {
+  return function (data, derivatives, dashboardName) {
+    var dashboardId = "#".concat(dashboardName);
+    $('<div/>').attr('id', 'dist-chart').css({
+      width: '500px',
+      height: '500px'
+    }).appendTo(dashboardId);
+    var sensors = (0, _dataEngine.getSensorNames)(data);
+    var sensor0 = derivatives.get(sensors[0]).classPos;
+    var sensor1 = derivatives.get(sensors[1]).classPos;
+    var seriesData = [];
+
+    for (var i = 0; i < sensor0.length; i++) {
+      seriesData.push([sensor0[i], sensor1[i]]);
+    }
+
+    var chart = {
+      chart: {
+        type: 'scatter',
+        zoomType: 'xy'
+      },
+      series: [{
+        name: 'TODO',
+        data: seriesData
+      }]
+    };
+    Highcharts.chart('dist-chart', chart);
+  };
+}(Highcharts, jQuery);
 
 exports.correlationDashboard = correlationDashboard;
-},{"../charts":"C0ac"}],"uXW5":[function(require,module,exports) {
+},{"../dataEngine":"YLGK"}],"uXW5":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
