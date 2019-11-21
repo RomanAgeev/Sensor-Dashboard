@@ -6,20 +6,22 @@ export const sensorBoxChart = (sensorName, index, data) => ({
         type: 'boxplot'
     },
     title: {
-        text: `${sensorName} data distribution by class`,
+        text: `${sensorName} (by class)`,
     },
     xAxis: {
-        categories: ['class 1', 'class -1'],
+        categories: ['Class +1', 'Class -1'],
     },
     yAxis: {
         min: 0,
+        max: 1,
         title: {
-            text: 'values',
-        }
+            text: null,
+        },
     },
     series: [{
         data: calcSensorBox(data, sensorName),
         name: sensorName,
+        showInLegend: false,
         color: getChartColor(index),
     }],
 });

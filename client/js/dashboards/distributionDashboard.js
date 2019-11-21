@@ -8,15 +8,24 @@ export const distributionDashboard = ((Highcharts, $) => (data, dashboardName) =
         $('<div/>')
             .css({
                 width: '100%',
-                height: '500px',
+                height: '400px',
             });
             
-    const sensorDataPlace = sensorName =>
+    const sensorDataPlace1= sensorName =>
         $('<div/>')
-            .attr('id', `${sensorName}-data`)
+            .attr('id', `${sensorName}-data1`)
             .css({
                 'display': 'inline-block',
-                'width': '70%',
+                'width': '38%',
+                'height': '100%'
+            });
+
+    const sensorDataPlace2 = sensorName =>
+        $('<div/>')
+            .attr('id', `${sensorName}-data2`)
+            .css({
+                'display': 'inline-block',
+                'width': '38%',
                 'height': '100%'
             });
 
@@ -25,20 +34,23 @@ export const distributionDashboard = ((Highcharts, $) => (data, dashboardName) =
         .attr('id', `${sensorName}-box`)
         .css({
             'display': 'inline-block',
-            'width': '30%',
+            'width': '24%',
             'height': '100%'
         }); 
 
     getSensorNames(data).forEach((sensorName, index) => {
         const $sensorPlace = sensorPlace().appendTo(dashboardId);
 
-        sensorDataPlace(sensorName).appendTo($sensorPlace);
+        sensorDataPlace1(sensorName).appendTo($sensorPlace);
+        sensorDataPlace2(sensorName).appendTo($sensorPlace);
         sensorBoxPlace(sensorName).appendTo($sensorPlace);
 
-        const dataChart = sensorDataChart(sensorName, index, data.sensor_data[sensorName]);
+        const dataChart1 = sensorDataChart(sensorName, index, data.sensor_data[sensorName].slice(0, 201), 'class +1');
+        const dataChart2 = sensorDataChart(sensorName, index, data.sensor_data[sensorName].slice(201, 401), 'class -1');
         const boxChart = sensorBoxChart(sensorName, index, data.sensor_data);
 
-        Highcharts.chart(`${sensorName}-data`, dataChart);
+        Highcharts.chart(`${sensorName}-data1`, dataChart1);
+        Highcharts.chart(`${sensorName}-data2`, dataChart2);
         Highcharts.chart(`${sensorName}-box`, boxChart);
     });
 })(Highcharts, jQuery);

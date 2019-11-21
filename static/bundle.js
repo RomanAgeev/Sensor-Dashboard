@@ -228,24 +228,26 @@ exports.sensorDataChart = void 0;
 
 var _chartUtils = require("./chartUtils");
 
-var sensorDataChart = function sensorDataChart(sensorName, index, sensorData) {
+var sensorDataChart = function sensorDataChart(sensorName, index, sensorData, className) {
   return {
     chart: {
       type: 'line'
     },
     title: {
-      text: "".concat(sensorName, " data")
+      text: "".concat(sensorName, " (").concat(className, ")")
     },
     xAxis: {},
     yAxis: {
       min: 0,
+      max: 1,
       title: {
-        text: 'value'
+        text: null
       }
     },
     series: [{
       data: sensorData,
       name: sensorName,
+      showInLegend: false,
       color: (0, _chartUtils.getChartColor)(index)
     }]
   };
@@ -307,20 +309,22 @@ var sensorBoxChart = function sensorBoxChart(sensorName, index, data) {
       type: 'boxplot'
     },
     title: {
-      text: "".concat(sensorName, " data distribution by class")
+      text: "".concat(sensorName, " (by class)")
     },
     xAxis: {
-      categories: ['class 1', 'class -1']
+      categories: ['Class +1', 'Class -1']
     },
     yAxis: {
       min: 0,
+      max: 1,
       title: {
-        text: 'values'
+        text: null
       }
     },
     series: [{
       data: calcSensorBox(data, sensorName),
       name: sensorName,
+      showInLegend: false,
       color: (0, _chartUtils.getChartColor)(index)
     }]
   };
@@ -415,14 +419,22 @@ var distributionDashboard = function (Highcharts, $) {
     var sensorPlace = function sensorPlace() {
       return $('<div/>').css({
         width: '100%',
-        height: '500px'
+        height: '400px'
       });
     };
 
-    var sensorDataPlace = function sensorDataPlace(sensorName) {
-      return $('<div/>').attr('id', "".concat(sensorName, "-data")).css({
+    var sensorDataPlace1 = function sensorDataPlace1(sensorName) {
+      return $('<div/>').attr('id', "".concat(sensorName, "-data1")).css({
         'display': 'inline-block',
-        'width': '70%',
+        'width': '38%',
+        'height': '100%'
+      });
+    };
+
+    var sensorDataPlace2 = function sensorDataPlace2(sensorName) {
+      return $('<div/>').attr('id', "".concat(sensorName, "-data2")).css({
+        'display': 'inline-block',
+        'width': '38%',
         'height': '100%'
       });
     };
@@ -430,18 +442,21 @@ var distributionDashboard = function (Highcharts, $) {
     var sensorBoxPlace = function sensorBoxPlace(sensorName) {
       return $('<div/>').attr('id', "".concat(sensorName, "-box")).css({
         'display': 'inline-block',
-        'width': '30%',
+        'width': '24%',
         'height': '100%'
       });
     };
 
     (0, _dataEngine.getSensorNames)(data).forEach(function (sensorName, index) {
       var $sensorPlace = sensorPlace().appendTo(dashboardId);
-      sensorDataPlace(sensorName).appendTo($sensorPlace);
+      sensorDataPlace1(sensorName).appendTo($sensorPlace);
+      sensorDataPlace2(sensorName).appendTo($sensorPlace);
       sensorBoxPlace(sensorName).appendTo($sensorPlace);
-      var dataChart = (0, _charts.sensorDataChart)(sensorName, index, data.sensor_data[sensorName]);
+      var dataChart1 = (0, _charts.sensorDataChart)(sensorName, index, data.sensor_data[sensorName].slice(0, 201), 'class +1');
+      var dataChart2 = (0, _charts.sensorDataChart)(sensorName, index, data.sensor_data[sensorName].slice(201, 401), 'class -1');
       var boxChart = (0, _charts.sensorBoxChart)(sensorName, index, data.sensor_data);
-      Highcharts.chart("".concat(sensorName, "-data"), dataChart);
+      Highcharts.chart("".concat(sensorName, "-data1"), dataChart1);
+      Highcharts.chart("".concat(sensorName, "-data2"), dataChart2);
       Highcharts.chart("".concat(sensorName, "-box"), boxChart);
     });
   };
