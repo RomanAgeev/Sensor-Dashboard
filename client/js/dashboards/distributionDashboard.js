@@ -1,56 +1,60 @@
 import { sensorDataChart, sensorBoxChart } from '../charts';
 import { getSensorNames } from '../dataEngine';
 
-export const distributionDashboard = ((Highcharts, $) => (data, dashboardName) => {
+const boxWidthPercentage = 24;
+const classWithPercentage = (100 - boxWidthPercentage) / 2;
+const height = 400;
+
+export const distributionDashboard = ((Highcharts, $) => (data, derivatives, dashboardName) => {
     const dashboardId = `#${dashboardName}`;
 
     const sensorPlace = () =>
         $('<div/>')
             .css({
                 width: '100%',
-                height: '400px',
+                height: `${height}px`,
             });
-            
-    const sensorDataPlace1= sensorName =>
+           
+    const sensorDataPlace = id =>
         $('<div/>')
-            .attr('id', `${sensorName}-data1`)
+            .attr('id', id)
             .css({
                 'display': 'inline-block',
-                'width': '38%',
+                'width': `${classWithPercentage}%`,
                 'height': '100%'
             });
 
-    const sensorDataPlace2 = sensorName =>
+    const sensorBoxPlace = id =>
         $('<div/>')
-            .attr('id', `${sensorName}-data2`)
-            .css({
-                'display': 'inline-block',
-                'width': '38%',
-                'height': '100%'
-            });
-
-    const sensorBoxPlace = sensorName =>
-        $('<div/>')
-        .attr('id', `${sensorName}-box`)
+        .attr('id', id)
         .css({
             'display': 'inline-block',
-            'width': '24%',
+            'width': `${boxWidthPercentage}%`,
             'height': '100%'
         }); 
 
-    getSensorNames(data).forEach((sensorName, index) => {
+    getSensorNames(data).forEach((sensor, index) => {
         const $sensorPlace = sensorPlace().appendTo(dashboardId);
 
-        sensorDataPlace1(sensorName).appendTo($sensorPlace);
-        sensorDataPlace2(sensorName).appendTo($sensorPlace);
-        sensorBoxPlace(sensorName).appendTo($sensorPlace);
+        const classPosId = `${sensor}-pos`;
+        const classNegId = `${sensor}-neg`;
+        const boxId = `${sensor}-box`;
 
-        const dataChart1 = sensorDataChart(sensorName, index, data.sensor_data[sensorName].slice(0, 201), 'class +1');
-        const dataChart2 = sensorDataChart(sensorName, index, data.sensor_data[sensorName].slice(201, 401), 'class -1');
-        const boxChart = sensorBoxChart(sensorName, index, data.sensor_data);
+        sensorDataPlace(classPosId).appendTo($sensorPlace);
+        sensorDataPlace(classNegId).appendTo($sensorPlace);
+        sensorBoxPlace(boxId).appendTo($sensorPlace);
 
-        Highcharts.chart(`${sensorName}-data1`, dataChart1);
-        Highcharts.chart(`${sensorName}-data2`, dataChart2);
-        Highcharts.chart(`${sensorName}-box`, boxChart);
+        const sensorData = derivatives.get(sensor);
+
+        const min = Math.floor(sensorData.min);
+        const max = Math.ceil(sensorData.max);
+
+        const chartClassPos = sensorDataChart(sensor, index, sensorData.classPos, min, max, 'class +1');
+        const chartClassNeg = sensorDataChart(sensor, index, sensorData.classNeg, min, max, 'class -1');
+        const chartBox = sensorBoxChart(sensor, index, sensorData, min, max);
+
+        Highcharts.chart(classPosId, chartClassPos);
+        Highcharts.chart(classNegId, chartClassNeg);
+        Highcharts.chart(boxId, chartBox);
     });
 })(Highcharts, jQuery);

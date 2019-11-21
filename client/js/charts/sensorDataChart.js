@@ -1,25 +1,25 @@
 import { getChartColor } from './chartUtils';
 
 
-export const sensorDataChart = (sensorName, index, sensorData, className) => ({
+export const sensorDataChart = (sensor, index, data, min, max, className) => ({
     chart: {
         type: 'line',
     },
     title: {
-        text: `${sensorName} (${className})`,
+        text: `${sensor} (${className})`,
     },
     xAxis: {
     },
     yAxis: {
-        min: 0,
-        max: 1,
+        min,
+        max,
         title: {
             text: null,
         },
     },
     series: [{
-        data: sensorData,
-        name: sensorName,
+        data,
+        name: sensor,
         showInLegend: false,
         color: getChartColor(index),
     }]
