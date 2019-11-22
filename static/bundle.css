@@ -135,11 +135,11 @@
   width: 150px;
   margin-left: 10px;
 }
-#correlationDashboard .checkClass {
-  margin-left: 15px;
-}
-#correlationDashboard .checkBothClasses {
+#correlationDashboard .checkClassPos {
   margin-left: 30px;
+}
+#correlationDashboard .checkClassNeg {
+  margin-left: 15px;
 }
 #correlationDashboard .navbar-label {
   color: black;

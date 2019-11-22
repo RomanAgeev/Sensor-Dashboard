@@ -6,9 +6,37 @@ export const correlationDashboard = ((Highcharts, $) => (data, derivatives, dash
 
     const sensors = getSensorNames(data);
 
+    let currentSensor = sensors[0];
+    let enablePos = true;
+    let enableNeg = true;
+
+    const getRadioValue = () => {
+        if (enablePos) {
+            return'classPos';
+        }
+        if (enableNeg) {
+            return 'classNeg';
+        }
+        console.warn('Unexpected enableClass state');
+    };
+
+    const setRadioValue = value => {
+        enablePos = value === 'classPos';
+        enableNeg = value === 'classNeg';
+    };
+
     const $chartContainer = $(`${dashboardId} .correlationCharts`);
 
-    const buildCharts = currentSensor => {
+    const getSensorData = (sensor) => {
+        if (enablePos) {
+            return derivatives.get(sensor).classPos;
+        }
+        if (enableNeg) {
+            return derivatives.get(sensor).classNeg;
+        }
+    };
+
+    const buildCharts = () => {
         $chartContainer.empty();
 
         sensors.forEach((sensor, index) => {
@@ -27,21 +55,28 @@ export const correlationDashboard = ((Highcharts, $) => (data, derivatives, dash
                 })
                 .appendTo($chartContainer);
 
-            const chart = sensorCorrChart(currentSensor, sensor, derivatives.get(currentSensor).classPos, derivatives.get(sensor).classPos, index);
+            const chart = sensorCorrChart(currentSensor, sensor, getSensorData(currentSensor), getSensorData(sensor), index);
 
             Highcharts.chart(chartId, chart);
         });
     };
 
-    const initialSensor = sensors[0];
-
     $(`${dashboardId} .sensorSelect`)
         .append(sensors.map(sensor => $('<option/>').text(sensor)))
-        .val(initialSensor)
+        .val(currentSensor)
         .on('change', function() {
-            buildCharts(this.value);
+            currentSensor = this.value;
+            buildCharts();
+        });
+
+    $(`${dashboardId} input[type=radio][name=checkClass][value=${getRadioValue()}]`)
+        .prop('checked', true);
+
+    $(`${dashboardId} input[type=radio][name=checkClass]`)
+        .change(function() {
+            setRadioValue(this.value);
+            buildCharts();
         });
         
-    buildCharts(initialSensor);
-
+    buildCharts();
 })(Highcharts, jQuery);

@@ -549,9 +549,40 @@ var correlationDashboard = function (Highcharts, $) {
   return function (data, derivatives, dashboardName) {
     var dashboardId = "#".concat(dashboardName);
     var sensors = (0, _dataEngine.getSensorNames)(data);
+    var currentSensor = sensors[0];
+    var enablePos = true;
+    var enableNeg = true;
+
+    var getRadioValue = function getRadioValue() {
+      if (enablePos) {
+        return 'classPos';
+      }
+
+      if (enableNeg) {
+        return 'classNeg';
+      }
+
+      console.warn('Unexpected enableClass state');
+    };
+
+    var setRadioValue = function setRadioValue(value) {
+      enablePos = value === 'classPos';
+      enableNeg = value === 'classNeg';
+    };
+
     var $chartContainer = $("".concat(dashboardId, " .correlationCharts"));
 
-    var buildCharts = function buildCharts(currentSensor) {
+    var getSensorData = function getSensorData(sensor) {
+      if (enablePos) {
+        return derivatives.get(sensor).classPos;
+      }
+
+      if (enableNeg) {
+        return derivatives.get(sensor).classNeg;
+      }
+    };
+
+    var buildCharts = function buildCharts() {
       $chartContainer.empty();
       sensors.forEach(function (sensor, index) {
         if (sensor === currentSensor) {
@@ -564,18 +595,23 @@ var correlationDashboard = function (Highcharts, $) {
           width: '33%',
           height: '500px'
         }).appendTo($chartContainer);
-        var chart = (0, _sensorCorrChart.sensorCorrChart)(currentSensor, sensor, derivatives.get(currentSensor).classPos, derivatives.get(sensor).classPos, index);
+        var chart = (0, _sensorCorrChart.sensorCorrChart)(currentSensor, sensor, getSensorData(currentSensor), getSensorData(sensor), index);
         Highcharts.chart(chartId, chart);
       });
     };
 
-    var initialSensor = sensors[0];
     $("".concat(dashboardId, " .sensorSelect")).append(sensors.map(function (sensor) {
       return $('<option/>').text(sensor);
-    })).val(initialSensor).on('change', function () {
-      buildCharts(this.value);
+    })).val(currentSensor).on('change', function () {
+      currentSensor = this.value;
+      buildCharts();
     });
-    buildCharts(initialSensor);
+    $("".concat(dashboardId, " input[type=radio][name=checkClass][value=").concat(getRadioValue(), "]")).prop('checked', true);
+    $("".concat(dashboardId, " input[type=radio][name=checkClass]")).change(function () {
+      setRadioValue(this.value);
+      buildCharts();
+    });
+    buildCharts();
   };
 }(Highcharts, jQuery);
 

@@ -4,7 +4,7 @@
 <script type="text/javascript">
     $(function() {
         layout('sidebar', 'content')
-            .then(app => app.selectDashboard('correlationDashboard'))
+            .then(app => app.selectDashboard('distributionDashboard'))
             .catch(err => console.warn(err));
     });
 </script>
@@ -40,18 +40,7 @@
                     </span>
                     <select class="form-control sensorSelect">
                     </select>
-                    <div class="custom-control custom-radio checkBothClasses">
-                        <input
-                            type="radio"
-                            class="custom-control-input"
-                            id="correlationDashboard-bothClasses"
-                            name="checkClass"
-                            value="bothClasses">
-                        <label
-                            class="custom-control-label navbar-label"
-                            for="correlationDashboard-bothClasses">Both</label>
-                    </div>
-                    <div class="custom-control custom-radio checkClass">
+                    <div class="custom-control custom-radio checkClassPos">
                         <input
                             type="radio"
                             class="custom-control-input"
@@ -62,7 +51,7 @@
                             class="custom-control-label navbar-label"
                             for="correlationDashboard-classPos">Class +1</label>
                     </div>
-                    <div class="custom-control custom-radio checkClass">
+                    <div class="custom-control custom-radio checkClassNeg">
                         <input
                             type="radio"
                             class="custom-control-input"
