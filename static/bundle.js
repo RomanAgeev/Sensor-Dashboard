@@ -217,7 +217,7 @@ var getChartColor = function getChartColor(index) {
 };
 
 exports.getChartColor = getChartColor;
-var chartColors = ['#7cb5ec', '#434348', '#90ed7d', '#f7a35c', '#8085e9', '#f15c80', '#e4d354', '#2b908f', '#f45b5b', '#91e8e1'];
+var chartColors = ['#7cb5ec', '#a3a3a8', '#90ed7d', '#f7a35c', '#8085e9', '#f15c80', '#e4d354', '#2b908f', '#f45b5b', '#91e8e1'];
 },{}],"iLUa":[function(require,module,exports) {
 "use strict";
 
@@ -228,7 +228,7 @@ exports.sensorDataChart = void 0;
 
 var _chartUtils = require("./chartUtils");
 
-var sensorDataChart = function sensorDataChart(sensor, index, data, min, max, className) {
+var sensorDataChart = function sensorDataChart(sensor, index, data, min, max, mean, className) {
   return {
     chart: {
       type: 'line'
@@ -242,13 +242,27 @@ var sensorDataChart = function sensorDataChart(sensor, index, data, min, max, cl
       max: max,
       title: {
         text: null
-      }
+      },
+      plotLines: [{
+        value: mean,
+        color: 'black',
+        dashStyle: 'shortdash',
+        width: 2,
+        zIndex: 4,
+        label: {
+          text: "mean (".concat(mean.toFixed(2), ")"),
+          style: {
+            fontWeight: 'bold'
+          }
+        }
+      }]
     },
     series: [{
       data: data,
       name: sensor,
       showInLegend: false,
-      color: (0, _chartUtils.getChartColor)(index)
+      color: (0, _chartUtils.getChartColor)(index),
+      zIndex: 1
     }]
   };
 };
@@ -298,8 +312,10 @@ var calcSensorDerivatives = function calcSensorDerivatives(data, sensor) {
     var classLabel = data.class_label[index];
 
     if (classLabel === 1) {
+      acc.meanPos += val;
       acc.classPos.push(val);
     } else if (classLabel === -1) {
+      acc.meanNeg += val;
       acc.classNeg.push(val);
     } else {
       console.warn("Unexpected class label ".concat(classLabel));
@@ -307,12 +323,12 @@ var calcSensorDerivatives = function calcSensorDerivatives(data, sensor) {
 
     acc.min = Math.min(acc.min, val);
     acc.max = Math.max(acc.max, val);
-    acc.mean += val;
     return acc;
   }, {
     min: Number.POSITIVE_INFINITY,
     max: Number.NEGATIVE_INFINITY,
-    mean: 0,
+    meanPos: 0,
+    meanNeg: 0,
     classPos: [],
     classNeg: []
   });
@@ -325,7 +341,8 @@ var calcSensorDerivatives = function calcSensorDerivatives(data, sensor) {
     derivatives.max = 1;
   }
 
-  derivatives.mean /= sensorData.length;
+  derivatives.meanPos /= derivatives.classPos.length;
+  derivatives.meanNeg /= derivatives.classNeg.length;
   return derivatives;
 };
 },{}],"vJCU":[function(require,module,exports) {
@@ -482,8 +499,8 @@ var distributionDashboard = function (Highcharts, $) {
       var sensorData = derivatives.get(sensor);
       var min = Math.floor(sensorData.min);
       var max = Math.ceil(sensorData.max);
-      var chartClassPos = (0, _charts.sensorDataChart)(sensor, index, sensorData.classPos, min, max, 'class +1');
-      var chartClassNeg = (0, _charts.sensorDataChart)(sensor, index, sensorData.classNeg, min, max, 'class -1');
+      var chartClassPos = (0, _charts.sensorDataChart)(sensor, index, sensorData.classPos, min, max, sensorData.meanPos, 'class +1');
+      var chartClassNeg = (0, _charts.sensorDataChart)(sensor, index, sensorData.classNeg, min, max, sensorData.meanNeg, 'class -1');
       var chartBox = (0, _charts.sensorBoxChart)(sensor, index, sensorData, min, max);
       Highcharts.chart(classPosId, chartClassPos);
       Highcharts.chart(classNegId, chartClassNeg);
@@ -549,6 +566,9 @@ var _dataEngine = require("../dataEngine");
 
 var _sensorCorrChart = require("../charts/sensorCorrChart");
 
+var height = 450;
+var widthPercent = 33;
+
 var correlationDashboard = function (Highcharts, $) {
   return function (data, derivatives, dashboardName) {
     var dashboardId = "#".concat(dashboardName);
@@ -596,8 +616,8 @@ var correlationDashboard = function (Highcharts, $) {
         var chartId = "".concat(currentSensor, "-").concat(sensor);
         $('<div/>').attr('id', chartId).css({
           display: 'inline-block',
-          width: '33%',
-          height: '500px'
+          width: "".concat(widthPercent, "%"),
+          height: "".concat(height, "px")
         }).appendTo($chartContainer);
         var currentSensorData = derivatives.get(currentSensor);
         var sensorData = derivatives.get(sensor);

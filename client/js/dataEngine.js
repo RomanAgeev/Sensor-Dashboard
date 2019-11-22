@@ -21,8 +21,10 @@ const calcSensorDerivatives = (data, sensor) => {
     const derivatives = sensorData.reduce((acc, val, index) => {
         const classLabel = data.class_label[index];
         if (classLabel === 1) {
+            acc.meanPos += val;
             acc.classPos.push(val);
         } else if (classLabel === -1) {
+            acc.meanNeg += val;
             acc.classNeg.push(val);
         } else {
             console.warn(`Unexpected class label ${classLabel}`);
@@ -30,13 +32,13 @@ const calcSensorDerivatives = (data, sensor) => {
 
         acc.min = Math.min(acc.min, val);
         acc.max = Math.max(acc.max, val);
-        acc.mean += val;
 
         return acc;
     }, {
         min: Number.POSITIVE_INFINITY,
         max: Number.NEGATIVE_INFINITY,
-        mean: 0,
+        meanPos: 0,
+        meanNeg: 0,
         classPos: [],
         classNeg: [],
     });
@@ -47,7 +49,8 @@ const calcSensorDerivatives = (data, sensor) => {
     if (!Number.isFinite(derivatives.max)) {
         derivatives.max = 1;
     }
-    derivatives.mean /= sensorData.length;
+    derivatives.meanPos /= derivatives.classPos.length;
+    derivatives.meanNeg /= derivatives.classNeg.length;
 
     return derivatives;
 };

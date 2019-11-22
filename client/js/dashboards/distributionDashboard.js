@@ -49,8 +49,8 @@ export const distributionDashboard = ((Highcharts, $) => (data, derivatives, das
         const min = Math.floor(sensorData.min);
         const max = Math.ceil(sensorData.max);
 
-        const chartClassPos = sensorDataChart(sensor, index, sensorData.classPos, min, max, 'class +1');
-        const chartClassNeg = sensorDataChart(sensor, index, sensorData.classNeg, min, max, 'class -1');
+        const chartClassPos = sensorDataChart(sensor, index, sensorData.classPos, min, max, sensorData.meanPos, 'class +1');
+        const chartClassNeg = sensorDataChart(sensor, index, sensorData.classNeg, min, max, sensorData.meanNeg, 'class -1');
         const chartBox = sensorBoxChart(sensor, index, sensorData, min, max);
 
         Highcharts.chart(classPosId, chartClassPos);
