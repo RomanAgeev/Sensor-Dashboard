@@ -1,0 +1,16 @@
+#correlationDashboard {
+    .navbar-container {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+    .navbar {
+        margin-bottom: 20px;
+        background-color: #e3f2fd;
+    }
+
+    .sensorSelect {
+        width: 150px;
+        margin-left: 10px;
+    }
+}

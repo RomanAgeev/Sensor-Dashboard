@@ -1,35 +1,47 @@
 import { getSensorNames } from '../dataEngine';
+import { sensorCorrChart } from '../charts/sensorCorrChart';
 
 export const correlationDashboard = ((Highcharts, $) => (data, derivatives, dashboardName) => {
     const dashboardId = `#${dashboardName}`;
 
-    $('<div/>')
-        .attr('id', 'dist-chart')
-        .css({
-            width: '500px',
-            height: '500px',
-        })
-        .appendTo(dashboardId);
-
     const sensors = getSensorNames(data);
-    const sensor0 = derivatives.get(sensors[0]).classPos;
-    const sensor1 = derivatives.get(sensors[1]).classPos;
 
-    const seriesData = [];
-    for (let i = 0; i < sensor0.length; i++) {
-        seriesData.push([sensor0[i], sensor1[i]]);
-    }
+    const $chartContainer = $(`${dashboardId} .correlationCharts`);
 
-    const chart = {
-        chart: {
-            type: 'scatter',
-            zoomType: 'xy'
-        },
-        series: [{
-            name: 'TODO',
-            data: seriesData,
-        }],
+    const buildCharts = currentSensor => {
+        $chartContainer.empty();
+
+        sensors.forEach((sensor, index) => {
+            if (sensor === currentSensor) {
+                return;
+            }
+
+            const chartId = `${currentSensor}-${sensor}`;
+
+            $('<div/>')
+                .attr('id', chartId)
+                .css({
+                    display: 'inline-block',
+                    width: '33%',
+                    height: '500px',
+                })
+                .appendTo($chartContainer);
+
+            const chart = sensorCorrChart(currentSensor, sensor, derivatives.get(currentSensor).classPos, derivatives.get(sensor).classPos, index);
+
+            Highcharts.chart(chartId, chart);
+        });
     };
 
-    Highcharts.chart('dist-chart', chart);
+    const initialSensor = sensors[0];
+
+    $(`${dashboardId} .sensorSelect`)
+        .append(sensors.map(sensor => $('<option/>').text(sensor)))
+        .val(initialSensor)
+        .on('change', function() {
+            buildCharts(this.value);
+        });
+        
+    buildCharts(initialSensor);
+
 })(Highcharts, jQuery);

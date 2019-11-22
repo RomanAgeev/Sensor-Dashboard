@@ -493,7 +493,47 @@ var distributionDashboard = function (Highcharts, $) {
 }(Highcharts, jQuery);
 
 exports.distributionDashboard = distributionDashboard;
-},{"../charts":"C0ac","../dataEngine":"YLGK"}],"LZKf":[function(require,module,exports) {
+},{"../charts":"C0ac","../dataEngine":"YLGK"}],"yU59":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.sensorCorrChart = void 0;
+
+var _chartUtils = require("./chartUtils");
+
+var sensorCorrChart = function sensorCorrChart(sensorA, sensorB, dataA, dataB, index) {
+  return {
+    chart: {
+      type: 'scatter'
+    },
+    title: {
+      text: "".concat(sensorA, " vs ").concat(sensorB)
+    },
+    xAxis: {
+      title: {
+        text: sensorA
+      }
+    },
+    yAxis: {
+      title: {
+        text: sensorB
+      }
+    },
+    series: [{
+      name: 'values',
+      showInLegend: false,
+      data: dataA.map(function (valA, index) {
+        return [valA, dataB[index]];
+      }),
+      color: (0, _chartUtils.getChartColor)(index)
+    }]
+  };
+};
+
+exports.sensorCorrChart = sensorCorrChart;
+},{"./chartUtils":"D21K"}],"LZKf":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -503,38 +543,44 @@ exports.correlationDashboard = void 0;
 
 var _dataEngine = require("../dataEngine");
 
+var _sensorCorrChart = require("../charts/sensorCorrChart");
+
 var correlationDashboard = function (Highcharts, $) {
   return function (data, derivatives, dashboardName) {
     var dashboardId = "#".concat(dashboardName);
-    $('<div/>').attr('id', 'dist-chart').css({
-      width: '500px',
-      height: '500px'
-    }).appendTo(dashboardId);
     var sensors = (0, _dataEngine.getSensorNames)(data);
-    var sensor0 = derivatives.get(sensors[0]).classPos;
-    var sensor1 = derivatives.get(sensors[1]).classPos;
-    var seriesData = [];
+    var $chartContainer = $("".concat(dashboardId, " .correlationCharts"));
 
-    for (var i = 0; i < sensor0.length; i++) {
-      seriesData.push([sensor0[i], sensor1[i]]);
-    }
+    var buildCharts = function buildCharts(currentSensor) {
+      $chartContainer.empty();
+      sensors.forEach(function (sensor, index) {
+        if (sensor === currentSensor) {
+          return;
+        }
 
-    var chart = {
-      chart: {
-        type: 'scatter',
-        zoomType: 'xy'
-      },
-      series: [{
-        name: 'TODO',
-        data: seriesData
-      }]
+        var chartId = "".concat(currentSensor, "-").concat(sensor);
+        $('<div/>').attr('id', chartId).css({
+          display: 'inline-block',
+          width: '33%',
+          height: '500px'
+        }).appendTo($chartContainer);
+        var chart = (0, _sensorCorrChart.sensorCorrChart)(currentSensor, sensor, derivatives.get(currentSensor).classPos, derivatives.get(sensor).classPos, index);
+        Highcharts.chart(chartId, chart);
+      });
     };
-    Highcharts.chart('dist-chart', chart);
+
+    var initialSensor = sensors[0];
+    $("".concat(dashboardId, " .sensorSelect")).append(sensors.map(function (sensor) {
+      return $('<option/>').text(sensor);
+    })).val(initialSensor).on('change', function () {
+      buildCharts(this.value);
+    });
+    buildCharts(initialSensor);
   };
 }(Highcharts, jQuery);
 
 exports.correlationDashboard = correlationDashboard;
-},{"../dataEngine":"YLGK"}],"uXW5":[function(require,module,exports) {
+},{"../dataEngine":"YLGK","../charts/sensorCorrChart":"yU59"}],"uXW5":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {

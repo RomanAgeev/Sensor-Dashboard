@@ -4,7 +4,7 @@
 <script type="text/javascript">
     $(function() {
         layout('sidebar', 'content')
-            .then(app => app.selectDashboard('distributionDashboard'))
+            .then(app => app.selectDashboard('correlationDashboard'))
             .catch(err => console.warn(err));
     });
 </script>
@@ -24,20 +24,6 @@
         <li>
             <span class="item" data-item="correlationDashboard">Correlation Dashboard</span>
         </li>
-        <!-- <li>
-            <a href="#dashboards2" data-toggle="collapse" aria-expanded="false" class="groupitem dropdown-toggle">Dashboards 2</a>
-            <ul class="collapse list-unstyled" id="dashboards2">
-                <li>
-                    <span class="item subitem" data-item="dashboard2.1">Dashboard 2.1</span>
-                </li>
-                <li>
-                    <span class="item subitem" data-item="dashboard2.2">Dashboard 2.2</span>
-                </li>
-                <li>
-                    <span class="item subitem" data-item="dashboard2.3">Dashbaord 2.3</span>
-                </li>
-            </ul>
-        </li>-->
     </ul>
 </nav>
 
@@ -45,7 +31,19 @@
     <div id="distributionDashboard" class="item">
     </div>
     <div id="correlationDashboard" class="item">
-        <div id="sensor_data2"></div>
+        <div class="navbar-container">
+            <nav class="navbar navbar-light">
+                <div class="form-inline">
+                    <span class="navbar-text">
+                        Choose sensor
+                    </span>
+                    <select class="form-control sensorSelect">
+                    </select>
+                </div>
+            </nav>
+        </div>
+        <div class="correlationCharts">
+        </div>
     </div>
 </div>
 

@@ -1,6 +1,5 @@
 import { getChartColor } from './chartUtils';
 
-
 export const sensorDataChart = (sensor, index, data, min, max, className) => ({
     chart: {
         type: 'line',

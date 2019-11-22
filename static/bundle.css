@@ -122,3 +122,16 @@
     margin-left: 51px;
   }
 }
+#correlationDashboard .navbar-container {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+#correlationDashboard .navbar {
+  margin-bottom: 20px;
+  background-color: #e3f2fd;
+}
+#correlationDashboard .sensorSelect {
+  width: 150px;
+  margin-left: 10px;
+}
