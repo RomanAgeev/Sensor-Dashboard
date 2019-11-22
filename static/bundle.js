@@ -312,10 +312,12 @@ var calcSensorDerivatives = function calcSensorDerivatives(data, sensor) {
     var classLabel = data.class_label[index];
 
     if (classLabel === 1) {
-      acc.meanPos += val;
+      acc.sumPos += val;
+      acc.sumSquaresPos += val * val;
       acc.classPos.push(val);
     } else if (classLabel === -1) {
-      acc.meanNeg += val;
+      acc.sumNeg += val;
+      acc.sumSquaresNeg += val * val;
       acc.classNeg.push(val);
     } else {
       console.warn("Unexpected class label ".concat(classLabel));
@@ -327,8 +329,10 @@ var calcSensorDerivatives = function calcSensorDerivatives(data, sensor) {
   }, {
     min: Number.POSITIVE_INFINITY,
     max: Number.NEGATIVE_INFINITY,
-    meanPos: 0,
-    meanNeg: 0,
+    sumPos: 0,
+    sumNeg: 0,
+    sumSquaresPos: 0,
+    sumSquaresNeg: 0,
     classPos: [],
     classNeg: []
   });
@@ -341,8 +345,10 @@ var calcSensorDerivatives = function calcSensorDerivatives(data, sensor) {
     derivatives.max = 1;
   }
 
-  derivatives.meanPos /= derivatives.classPos.length;
-  derivatives.meanNeg /= derivatives.classNeg.length;
+  derivatives.meanPos = derivatives.sumPos / derivatives.classPos.length;
+  derivatives.meanNeg = derivatives.sumNeg / derivatives.classNeg.length;
+  derivatives.deviationPos = Math.sqrt((derivatives.sumSquaresPos - derivatives.sumPos * derivatives.sumPos / derivatives.classPos.length) / (derivatives.classPos.length - 1));
+  derivatives.deviationNeg = Math.sqrt((derivatives.sumSquaresNeg - derivatives.sumNeg * derivatives.sumNeg / derivatives.classNeg.length) / (derivatives.classNeg.length - 1));
   return derivatives;
 };
 },{}],"vJCU":[function(require,module,exports) {
@@ -520,7 +526,7 @@ exports.sensorCorrChart = void 0;
 
 var _chartUtils = require("./chartUtils");
 
-var sensorCorrChart = function sensorCorrChart(sensorA, sensorB, dataA, dataB, minA, maxA, minB, maxB, index) {
+var sensorCorrChart = function sensorCorrChart(sensorA, sensorB, dataA, dataB, minA, maxA, minB, maxB, index, meanA, meanB, devA, devB, p1, p2, r) {
   return {
     chart: {
       type: 'scatter'
@@ -528,12 +534,32 @@ var sensorCorrChart = function sensorCorrChart(sensorA, sensorB, dataA, dataB, m
     title: {
       text: "".concat(sensorA, " vs ").concat(sensorB)
     },
+    legend: {
+      symbolPadding: 0,
+      symbolWidth: 0,
+      symbolRadius: 0
+    },
     xAxis: {
       min: minA,
       max: maxA,
       title: {
         text: sensorA
-      }
+      },
+      gridLineWidth: 1
+      /*plotLines: [{
+          value: meanA,
+          color: 'black',
+          dashStyle: 'shortdash',
+          width: 2,
+          zIndex: 4,
+          label: {
+              text: `mean (${meanA.toFixed(2)})`,
+              style: {
+                  fontWeight: 'bold',
+              }
+          },
+      }],*/
+
     },
     yAxis: {
       min: minB,
@@ -541,6 +567,20 @@ var sensorCorrChart = function sensorCorrChart(sensorA, sensorB, dataA, dataB, m
       title: {
         text: sensorB
       }
+      /*plotLines: [{
+          value: meanB,
+          color: 'black',
+          dashStyle: 'shortdash',
+          width: 2,
+          zIndex: 4,
+          label: {
+              text: `mean (${meanB.toFixed(2)})`,
+              style: {
+                  fontWeight: 'bold',
+              }
+          },
+      }],*/
+
     },
     series: [{
       name: 'values',
@@ -549,6 +589,21 @@ var sensorCorrChart = function sensorCorrChart(sensorA, sensorB, dataA, dataB, m
         return [valA, dataB[index]];
       }),
       color: (0, _chartUtils.getChartColor)(index)
+    }, {
+      type: 'line',
+      name: "R\xB2 = ".concat(r, "%"),
+      data: [p1, p2],
+      color: 'black',
+      dashStyle: 'shortdash',
+      marker: {
+        enabled: false
+      },
+      states: {
+        hover: {
+          lineWidth: 0
+        }
+      },
+      enableMouseTracking: false
     }]
   };
 };
@@ -619,9 +674,24 @@ var correlationDashboard = function (Highcharts, $) {
           width: "".concat(widthPercent, "%"),
           height: "".concat(height, "px")
         }).appendTo($chartContainer);
-        var currentSensorData = derivatives.get(currentSensor);
-        var sensorData = derivatives.get(sensor);
-        var chart = (0, _sensorCorrChart.sensorCorrChart)(currentSensor, sensor, getSensorData(currentSensorData), getSensorData(sensorData), currentSensorData.min, currentSensorData.max, sensorData.min, sensorData.max, index);
+        var sensorDataA = derivatives.get(currentSensor);
+        var sensorDataB = derivatives.get(sensor);
+        var dataA = getSensorData(sensorDataA);
+        var dataB = getSensorData(sensorDataB);
+        var xy = 0;
+
+        for (var i = 0; i < dataA.length; i++) {
+          xy += (dataA[i] - sensorDataA.meanPos) * (dataB[i] - sensorDataB.meanPos);
+        }
+
+        xy /= sensorDataA.deviationPos * sensorDataA.deviationPos;
+        var r = xy / (dataA.length - 1); // const r = xy / Math.sqrt(sensorDataA.sumSquaresNeg * sensorDataB.sumSquaresNeg);
+
+        var a = r * sensorDataB.deviationPos / sensorDataA.deviationPos;
+        var b = sensorDataB.meanPos - a * sensorDataA.meanPos;
+        var p1 = [sensorDataA.min, a * sensorDataA.min + b];
+        var p2 = [sensorDataA.max, a * sensorDataA.max + b];
+        var chart = (0, _sensorCorrChart.sensorCorrChart)(currentSensor, sensor, dataA, dataB, sensorDataA.min, sensorDataA.max, sensorDataB.min, sensorDataB.max, index, sensorDataA.meanPos, sensorDataB.meanPos, sensorDataA.deviationPos, sensorDataB.deviationPos, p1, p2, (r * r * 100).toFixed(2));
         Highcharts.chart(chartId, chart);
       });
     };

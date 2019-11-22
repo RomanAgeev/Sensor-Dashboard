@@ -21,10 +21,12 @@ const calcSensorDerivatives = (data, sensor) => {
     const derivatives = sensorData.reduce((acc, val, index) => {
         const classLabel = data.class_label[index];
         if (classLabel === 1) {
-            acc.meanPos += val;
+            acc.sumPos += val;
+            acc.sumSquaresPos += val * val;
             acc.classPos.push(val);
         } else if (classLabel === -1) {
-            acc.meanNeg += val;
+            acc.sumNeg += val;
+            acc.sumSquaresNeg += val * val;
             acc.classNeg.push(val);
         } else {
             console.warn(`Unexpected class label ${classLabel}`);
@@ -37,8 +39,10 @@ const calcSensorDerivatives = (data, sensor) => {
     }, {
         min: Number.POSITIVE_INFINITY,
         max: Number.NEGATIVE_INFINITY,
-        meanPos: 0,
-        meanNeg: 0,
+        sumPos: 0,
+        sumNeg: 0,
+        sumSquaresPos: 0,
+        sumSquaresNeg: 0,
         classPos: [],
         classNeg: [],
     });
@@ -49,8 +53,11 @@ const calcSensorDerivatives = (data, sensor) => {
     if (!Number.isFinite(derivatives.max)) {
         derivatives.max = 1;
     }
-    derivatives.meanPos /= derivatives.classPos.length;
-    derivatives.meanNeg /= derivatives.classNeg.length;
+    derivatives.meanPos = derivatives.sumPos / derivatives.classPos.length;
+    derivatives.meanNeg = derivatives.sumNeg / derivatives.classNeg.length;
+
+    derivatives.deviationPos = Math.sqrt((derivatives.sumSquaresPos - (derivatives.sumPos * derivatives.sumPos) / derivatives.classPos.length) / (derivatives.classPos.length - 1));
+    derivatives.deviationNeg = Math.sqrt((derivatives.sumSquaresNeg - (derivatives.sumNeg * derivatives.sumNeg) / derivatives.classNeg.length) / (derivatives.classNeg.length - 1));
 
     return derivatives;
 };

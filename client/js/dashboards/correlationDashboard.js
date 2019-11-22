@@ -58,11 +58,32 @@ export const correlationDashboard = ((Highcharts, $) => (data, derivatives, dash
                 })
                 .appendTo($chartContainer);
 
-            const currentSensorData = derivatives.get(currentSensor);
-            const sensorData =  derivatives.get(sensor);
+            const sensorDataA = derivatives.get(currentSensor);
+            const sensorDataB =  derivatives.get(sensor);
 
-            const chart = sensorCorrChart(currentSensor, sensor, getSensorData(currentSensorData), getSensorData(sensorData),
-                currentSensorData.min, currentSensorData.max, sensorData.min, sensorData.max, index);
+            const dataA = getSensorData(sensorDataA);
+            const dataB = getSensorData(sensorDataB);
+
+            let xy = 0;
+            for (let i = 0; i < dataA.length; i++) {
+                xy += (dataA[i] - sensorDataA.meanPos) * (dataB[i] - sensorDataB.meanPos);
+            }
+
+            xy /= sensorDataA.deviationPos * sensorDataA.deviationPos;
+
+            const r = xy / (dataA.length - 1);
+
+            // const r = xy / Math.sqrt(sensorDataA.sumSquaresNeg * sensorDataB.sumSquaresNeg);
+
+            const a = r * sensorDataB.deviationPos / sensorDataA.deviationPos;
+            const b = sensorDataB.meanPos - a * sensorDataA.meanPos;
+
+            const p1 = [sensorDataA.min, a * sensorDataA.min + b];
+            const p2 = [sensorDataA.max, a * sensorDataA.max + b];
+
+            const chart = sensorCorrChart(currentSensor, sensor, dataA, dataB,
+                sensorDataA.min, sensorDataA.max, sensorDataB.min, sensorDataB.max, index,
+                    sensorDataA.meanPos, sensorDataB.meanPos, sensorDataA.deviationPos, sensorDataB.deviationPos, p1, p2, (r * r * 100).toFixed(2));
 
             Highcharts.chart(chartId, chart);
         });
