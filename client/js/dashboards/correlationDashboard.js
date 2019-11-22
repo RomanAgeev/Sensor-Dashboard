@@ -1,6 +1,9 @@
 import { getSensorNames } from '../dataEngine';
 import { sensorCorrChart } from '../charts/sensorCorrChart';
 
+const height = 450;
+const widthPercent = 33;
+
 export const correlationDashboard = ((Highcharts, $) => (data, derivatives, dashboardName) => {
     const dashboardId = `#${dashboardName}`;
 
@@ -27,12 +30,12 @@ export const correlationDashboard = ((Highcharts, $) => (data, derivatives, dash
 
     const $chartContainer = $(`${dashboardId} .correlationCharts`);
 
-    const getSensorData = (sensor) => {
+    const getSensorData = sensorData => {
         if (enablePos) {
-            return derivatives.get(sensor).classPos;
+            return sensorData.classPos;
         }
         if (enableNeg) {
-            return derivatives.get(sensor).classNeg;
+            return sensorData.classNeg;
         }
     };
 
@@ -50,12 +53,16 @@ export const correlationDashboard = ((Highcharts, $) => (data, derivatives, dash
                 .attr('id', chartId)
                 .css({
                     display: 'inline-block',
-                    width: '33%',
-                    height: '500px',
+                    width: `${widthPercent}%`,
+                    height: `${height}px`,
                 })
                 .appendTo($chartContainer);
 
-            const chart = sensorCorrChart(currentSensor, sensor, getSensorData(currentSensor), getSensorData(sensor), index);
+            const currentSensorData = derivatives.get(currentSensor);
+            const sensorData =  derivatives.get(sensor);
+
+            const chart = sensorCorrChart(currentSensor, sensor, getSensorData(currentSensorData), getSensorData(sensorData),
+                currentSensorData.min, currentSensorData.max, sensorData.min, sensorData.max, index);
 
             Highcharts.chart(chartId, chart);
         });

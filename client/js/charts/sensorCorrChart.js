@@ -1,6 +1,6 @@
 import { getChartColor } from './chartUtils';
 
-export const sensorCorrChart = (sensorA, sensorB, dataA, dataB, index) => ({
+export const sensorCorrChart = (sensorA, sensorB, dataA, dataB, minA, maxA, minB, maxB, index) => ({
     chart: {
         type: 'scatter',
     },
@@ -8,11 +8,15 @@ export const sensorCorrChart = (sensorA, sensorB, dataA, dataB, index) => ({
         text: `${sensorA} vs ${sensorB}`,
     },
     xAxis: {
+        min: minA,
+        max: maxA,
         title: {
             text: sensorA,
         },
     },
     yAxis: {
+        min: minB,
+        max: maxB,
         title: {
             text: sensorB,
         },

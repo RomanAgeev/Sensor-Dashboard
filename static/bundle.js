@@ -503,7 +503,7 @@ exports.sensorCorrChart = void 0;
 
 var _chartUtils = require("./chartUtils");
 
-var sensorCorrChart = function sensorCorrChart(sensorA, sensorB, dataA, dataB, index) {
+var sensorCorrChart = function sensorCorrChart(sensorA, sensorB, dataA, dataB, minA, maxA, minB, maxB, index) {
   return {
     chart: {
       type: 'scatter'
@@ -512,11 +512,15 @@ var sensorCorrChart = function sensorCorrChart(sensorA, sensorB, dataA, dataB, i
       text: "".concat(sensorA, " vs ").concat(sensorB)
     },
     xAxis: {
+      min: minA,
+      max: maxA,
       title: {
         text: sensorA
       }
     },
     yAxis: {
+      min: minB,
+      max: maxB,
       title: {
         text: sensorB
       }
@@ -572,13 +576,13 @@ var correlationDashboard = function (Highcharts, $) {
 
     var $chartContainer = $("".concat(dashboardId, " .correlationCharts"));
 
-    var getSensorData = function getSensorData(sensor) {
+    var getSensorData = function getSensorData(sensorData) {
       if (enablePos) {
-        return derivatives.get(sensor).classPos;
+        return sensorData.classPos;
       }
 
       if (enableNeg) {
-        return derivatives.get(sensor).classNeg;
+        return sensorData.classNeg;
       }
     };
 
@@ -595,7 +599,9 @@ var correlationDashboard = function (Highcharts, $) {
           width: '33%',
           height: '500px'
         }).appendTo($chartContainer);
-        var chart = (0, _sensorCorrChart.sensorCorrChart)(currentSensor, sensor, getSensorData(currentSensor), getSensorData(sensor), index);
+        var currentSensorData = derivatives.get(currentSensor);
+        var sensorData = derivatives.get(sensor);
+        var chart = (0, _sensorCorrChart.sensorCorrChart)(currentSensor, sensor, getSensorData(currentSensorData), getSensorData(sensorData), currentSensorData.min, currentSensorData.max, sensorData.min, sensorData.max, index);
         Highcharts.chart(chartId, chart);
       });
     };
