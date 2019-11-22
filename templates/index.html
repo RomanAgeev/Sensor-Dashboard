@@ -30,6 +30,7 @@
 <div id="content">
     <div id="distributionDashboard" class="item">
     </div>
+
     <div id="correlationDashboard" class="item">
         <div class="navbar-container">
             <nav class="navbar navbar-light">
@@ -39,6 +40,39 @@
                     </span>
                     <select class="form-control sensorSelect">
                     </select>
+                    <div class="custom-control custom-radio checkBothClasses">
+                        <input
+                            type="radio"
+                            class="custom-control-input"
+                            id="correlationDashboard-bothClasses"
+                            name="checkClass"
+                            value="bothClasses">
+                        <label
+                            class="custom-control-label navbar-label"
+                            for="correlationDashboard-bothClasses">Both</label>
+                    </div>
+                    <div class="custom-control custom-radio checkClass">
+                        <input
+                            type="radio"
+                            class="custom-control-input"
+                            id="correlationDashboard-classPos"
+                            name="checkClass"
+                            value="classPos">
+                        <label
+                            class="custom-control-label navbar-label"
+                            for="correlationDashboard-classPos">Class +1</label>
+                    </div>
+                    <div class="custom-control custom-radio checkClass">
+                        <input
+                            type="radio"
+                            class="custom-control-input"
+                            id="correlationDashboard-classNeg"
+                            name="checkClass"
+                            value="classNeg">
+                        <label
+                            class="custom-control-label navbar-label"
+                            for="correlationDashboard-classNeg">Class -1</label>
+                    </div>
                 </div>
             </nav>
         </div>
