@@ -5,7 +5,7 @@ const boxWidthPercentage = 24;
 const classWithPercentage = (100 - boxWidthPercentage) / 2;
 const height = 400;
 
-export const distributionDashboard = ((Highcharts, $) => (data, summary, dashboardName) => {
+export const sensorDistDashboard = ((Highcharts, $) => (data, summary, dashboardName) => {
     const dashboardId = `#${dashboardName}`;
 
     const sensorPlace = () =>
@@ -33,7 +33,7 @@ export const distributionDashboard = ((Highcharts, $) => (data, summary, dashboa
             'height': '100%'
         }); 
 
-    getSensorNames(data).forEach((sensor, index) => {
+    getSensorNames(data).forEach(sensor => {
         const $sensorPlace = sensorPlace().appendTo(dashboardId);
 
         const classLabels = ['1', '-1'];

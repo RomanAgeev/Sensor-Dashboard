@@ -1,10 +1,10 @@
 import { getSensorNames } from '../dataEngine';
-import { sensorCorrChart } from '../charts/sensorCorrChart';
+import { sensorCorrChart } from '../charts';
 
 const height = 450;
 const widthPercent = 33;
 
-export const correlationDashboard = ((Highcharts, $) => (data, summary, dashboardName) => {
+export const sensorCorrDashboard = ((Highcharts, $) => (data, summary, dashboardName) => {
     const dashboardId = `#${dashboardName}`;
 
     const sensors = getSensorNames(data);
@@ -17,7 +17,7 @@ export const correlationDashboard = ((Highcharts, $) => (data, summary, dashboar
     const buildCharts = () => {
         $chartContainer.empty();
 
-        sensors.forEach((sensorY, index) => {
+        sensors.forEach(sensorY => {
             if (sensorY === sensorX) {
                 return;
             }

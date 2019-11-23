@@ -122,26 +122,26 @@
     margin-left: 51px;
   }
 }
-#correlationDashboard .navbar-container {
+#sensorCorrDashboard .navbar-container {
   position: sticky;
   top: 0;
   z-index: 2;
 }
-#correlationDashboard .navbar {
+#sensorCorrDashboard .navbar {
   margin-bottom: 20px;
   background-color: #e3f2fd;
 }
-#correlationDashboard .sensorSelect {
+#sensorCorrDashboard .sensorSelect {
   width: 150px;
   margin-left: 10px;
 }
-#correlationDashboard .checkClassPos {
+#sensorCorrDashboard .checkClassPos {
   margin-left: 30px;
 }
-#correlationDashboard .checkClassNeg {
+#sensorCorrDashboard .checkClassNeg {
   margin-left: 15px;
 }
-#correlationDashboard .navbar-label {
+#sensorCorrDashboard .navbar-label {
   color: black;
   opacity: 0.6;
 }

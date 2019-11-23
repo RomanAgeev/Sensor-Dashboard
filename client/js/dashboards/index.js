@@ -1,7 +1,7 @@
-import { distributionDashboard } from './distributionDashboard';
-import { correlationDashboard } from './correlationDashboard';
+import { sensorDistDashboard } from './sensorDistDashboard';
+import { sensorCorrDashboard } from './sensorCorrDashboard';
 
 export const dashboardFactory = {
-    distributionDashboard,
-    correlationDashboard
+    sensorDistDashboard,
+    sensorCorrDashboard
 };
