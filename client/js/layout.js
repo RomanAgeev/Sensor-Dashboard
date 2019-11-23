@@ -1,7 +1,7 @@
 import { sidebar } from './sidebar';
 import { fetchData } from './channel';
 import { dashboardFactory } from './dashboards';
-import { calcDerivatives } from './dataEngine';
+import { calcSummary } from './dataEngine';
 
 const layout = ($ => async (sidebarName, contentName) => {
     const contentId = `#${contentName}`;
@@ -9,7 +9,7 @@ const layout = ($ => async (sidebarName, contentName) => {
     const dashboardMap = new Map();
 
     let data = null;
-    let derivatives = null;
+    let summary = null;
 
     const initDashboard = dashboardId => {
         if (dashboardMap.has(dashboardId)) {
@@ -18,7 +18,7 @@ const layout = ($ => async (sidebarName, contentName) => {
 
         const factory = dashboardFactory[dashboardId];
         if (factory) {
-            dashboardMap.set(dashboardId, factory(data, derivatives, dashboardId));
+            dashboardMap.set(dashboardId, factory(data, summary, dashboardId));
         }
     };
 
@@ -36,7 +36,7 @@ const layout = ($ => async (sidebarName, contentName) => {
     const bar = sidebar(sidebarName, onItemSelected);
 
     data = (await fetchData()).sensor_data;
-    derivatives = await new Promise((res, _rej) => res(calcDerivatives(data)));
+    summary = await new Promise((res, _rej) => res(calcSummary(data)));
 
     return {
         selectDashboard: bar.selectItem,

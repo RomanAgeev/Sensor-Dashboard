@@ -1,3 +1,5 @@
+import { getColor } from './utils';
+
 export const getSensorNames = data =>
     Object.getOwnPropertyNames(data)
         .map(name => /^sensor(\d+)$/g.exec(name))
@@ -12,52 +14,62 @@ export const calcMedian = (values, minIndex, maxIndex) => {
     return [median, leftIndex, rightIndex];
 };
 
-export const calcDerivatives = data =>
-    getSensorNames(data).reduce((acc, sensor) => acc.set(sensor, calcSensorDerivatives(data, sensor)), new Map());
+export const sliceClassData = (sensorData, classSummary) =>
+    sensorData.slice(classSummary.startIndex, classSummary.startIndex + classSummary.count);
 
-const calcSensorDerivatives = (data, sensor) => {
+export const calcSummary = data =>
+    getSensorNames(data).reduce((acc, sensor, index) => acc.set(sensor, calcSensorSummary(data, sensor, index)), new Map());
+
+const calcSensorSummary = (data, sensor, sensorIndex) => {
     const sensorData = data[sensor];
 
-    const derivatives = sensorData.reduce((acc, val, index) => {
-        const classLabel = data.class_label[index];
-        if (classLabel === 1) {
-            acc.sumPos += val;
-            acc.sumSquaresPos += val * val;
-            acc.classPos.push(val);
-        } else if (classLabel === -1) {
-            acc.sumNeg += val;
-            acc.sumSquaresNeg += val * val;
-            acc.classNeg.push(val);
-        } else {
-            console.warn(`Unexpected class label ${classLabel}`);
+    const summary = sensorData.reduce((acc, val, index) => {
+        const classLabel = data.class_label[index].toString();
+
+        let classData = acc.classes.get(classLabel);
+        if (!classData) {
+            classData = {
+                startIndex: index,
+                count: 0,
+                min: minInit,
+                max: maxInit,
+                sum: 0,
+                sumSquares: 0,
+            };
+            acc.classes.set(classLabel, classData);
         }
+
+        classData.count++;
+        classData.min = Math.min(classData.min, val);
+        classData.max = Math.max(classData.max, val);
+        classData.sum += val;
+        classData.sumSquares += val * val;
 
         acc.min = Math.min(acc.min, val);
         acc.max = Math.max(acc.max, val);
 
         return acc;
     }, {
-        min: Number.POSITIVE_INFINITY,
-        max: Number.NEGATIVE_INFINITY,
-        sumPos: 0,
-        sumNeg: 0,
-        sumSquaresPos: 0,
-        sumSquaresNeg: 0,
-        classPos: [],
-        classNeg: [],
+        min: minInit,
+        max: maxInit,
+        classes: new Map(),
     });
 
-    if (!Number.isFinite(derivatives.min)) {
-        derivatives.min = 0;
-    }
-    if (!Number.isFinite(derivatives.max)) {
-        derivatives.max = 1;
-    }
-    derivatives.meanPos = derivatives.sumPos / derivatives.classPos.length;
-    derivatives.meanNeg = derivatives.sumNeg / derivatives.classNeg.length;
+    summary.min = normMin(summary.min);
+    summary.max = normMax(summary.max);
+    summary.color = getColor(sensorIndex);
 
-    derivatives.deviationPos = Math.sqrt((derivatives.sumSquaresPos - (derivatives.sumPos * derivatives.sumPos) / derivatives.classPos.length) / (derivatives.classPos.length - 1));
-    derivatives.deviationNeg = Math.sqrt((derivatives.sumSquaresNeg - (derivatives.sumNeg * derivatives.sumNeg) / derivatives.classNeg.length) / (derivatives.classNeg.length - 1));
+    summary.classes.forEach((classData, _classLabel) => {
+        classData.min = normMin(classData.min);
+        classData.max = normMax(classData.max);
+        classData.mean = classData.sum / classData.count;
+        classData.deviation = Math.sqrt((classData.sumSquares - (classData.sum * classData.sum) / classData.count) / (classData.count - 1));
+    });
 
-    return derivatives;
+    return summary;
 };
+
+const minInit = Number.POSITIVE_INFINITY;
+const maxInit = Number.NEGATIVE_INFINITY;
+const normMin = min => Number.isFinite(min) ? min : 0;
+const normMax = max => Number.isFinite(max) ? max : 1;

@@ -5,7 +5,7 @@ const boxWidthPercentage = 24;
 const classWithPercentage = (100 - boxWidthPercentage) / 2;
 const height = 400;
 
-export const distributionDashboard = ((Highcharts, $) => (data, derivatives, dashboardName) => {
+export const distributionDashboard = ((Highcharts, $) => (data, summary, dashboardName) => {
     const dashboardId = `#${dashboardName}`;
 
     const sensorPlace = () =>
@@ -36,25 +36,20 @@ export const distributionDashboard = ((Highcharts, $) => (data, derivatives, das
     getSensorNames(data).forEach((sensor, index) => {
         const $sensorPlace = sensorPlace().appendTo(dashboardId);
 
-        const classPosId = `${sensor}-pos`;
-        const classNegId = `${sensor}-neg`;
+        const classLabels = ['1', '-1'];
+
+        classLabels.forEach(classLabel => {
+            const classId = `${sensor}-data-${classLabel}`;
+            sensorDataPlace(classId).appendTo($sensorPlace);
+            const chartData = sensorDataChart(sensor, data, summary, classLabel);
+
+            Highcharts.chart(classId, chartData);
+        });
+
         const boxId = `${sensor}-box`;
-
-        sensorDataPlace(classPosId).appendTo($sensorPlace);
-        sensorDataPlace(classNegId).appendTo($sensorPlace);
         sensorBoxPlace(boxId).appendTo($sensorPlace);
+        const chartBox = sensorBoxChart(sensor, data, summary, classLabels);
 
-        const sensorData = derivatives.get(sensor);
-
-        const min = Math.floor(sensorData.min);
-        const max = Math.ceil(sensorData.max);
-
-        const chartClassPos = sensorDataChart(sensor, index, sensorData.classPos, min, max, sensorData.meanPos, 'class +1');
-        const chartClassNeg = sensorDataChart(sensor, index, sensorData.classNeg, min, max, sensorData.meanNeg, 'class -1');
-        const chartBox = sensorBoxChart(sensor, index, sensorData, min, max);
-
-        Highcharts.chart(classPosId, chartClassPos);
-        Highcharts.chart(classNegId, chartClassNeg);
         Highcharts.chart(boxId, chartBox);
     });
 })(Highcharts, jQuery);

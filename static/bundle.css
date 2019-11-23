@@ -28,7 +28,7 @@
   background: var(--dark);
   color: var(--light);
   transition: all 0.3s;
-  z-index: 1;
+  z-index: 100;
 }
 
 #sidebar .header {
@@ -125,7 +125,7 @@
 #correlationDashboard .navbar-container {
   position: sticky;
   top: 0;
-  z-index: 1;
+  z-index: 2;
 }
 #correlationDashboard .navbar {
   margin-bottom: 20px;

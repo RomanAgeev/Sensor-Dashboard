@@ -5,7 +5,7 @@
     $(function() {
         layout('sidebar', 'content')
             .then(app => app.selectDashboard('distributionDashboard'))
-            .catch(err => console.warn(err));
+            .catch(err => console.error(err));
     });
 </script>
     
@@ -46,7 +46,7 @@
                             class="custom-control-input"
                             id="correlationDashboard-classPos"
                             name="checkClass"
-                            value="classPos">
+                            value="1">
                         <label
                             class="custom-control-label navbar-label"
                             for="correlationDashboard-classPos">Class +1</label>
@@ -57,7 +57,7 @@
                             class="custom-control-input"
                             id="correlationDashboard-classNeg"
                             name="checkClass"
-                            value="classNeg">
+                            value="-1">
                         <label
                             class="custom-control-label navbar-label"
                             for="correlationDashboard-classNeg">Class -1</label>

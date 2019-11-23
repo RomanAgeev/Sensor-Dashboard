@@ -204,77 +204,36 @@ var fetchData = function fetchData() {
 };
 
 exports.fetchData = fetchData;
-},{}],"D21K":[function(require,module,exports) {
+},{}],"MgTz":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.getChartColor = void 0;
+exports.getColor = exports.readableName = void 0;
 
-var getChartColor = function getChartColor(index) {
-  return chartColors[index % chartColors.length];
+var readableName = function readableName(sensor) {
+  var match = /^(\w+)(\d+)$/g.exec(sensor);
+  return "".concat(match[1], " ").concat(match[2]);
 };
 
-exports.getChartColor = getChartColor;
-var chartColors = ['#7cb5ec', '#a3a3a8', '#90ed7d', '#f7a35c', '#8085e9', '#f15c80', '#e4d354', '#2b908f', '#f45b5b', '#91e8e1'];
-},{}],"iLUa":[function(require,module,exports) {
-"use strict";
+exports.readableName = readableName;
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.sensorDataChart = void 0;
-
-var _chartUtils = require("./chartUtils");
-
-var sensorDataChart = function sensorDataChart(sensor, index, data, min, max, mean, className) {
-  return {
-    chart: {
-      type: 'line'
-    },
-    title: {
-      text: "".concat(sensor, " (").concat(className, ")")
-    },
-    xAxis: {},
-    yAxis: {
-      min: min,
-      max: max,
-      title: {
-        text: null
-      },
-      plotLines: [{
-        value: mean,
-        color: 'black',
-        dashStyle: 'shortdash',
-        width: 2,
-        zIndex: 4,
-        label: {
-          text: "mean (".concat(mean.toFixed(2), ")"),
-          style: {
-            fontWeight: 'bold'
-          }
-        }
-      }]
-    },
-    series: [{
-      data: data,
-      name: sensor,
-      showInLegend: false,
-      color: (0, _chartUtils.getChartColor)(index),
-      zIndex: 1
-    }]
-  };
+var getColor = function getColor(index) {
+  return colors[index % colors.length];
 };
 
-exports.sensorDataChart = sensorDataChart;
-},{"./chartUtils":"D21K"}],"YLGK":[function(require,module,exports) {
+exports.getColor = getColor;
+var colors = ['#7cb5ec', '#a3a3a8', '#90ed7d', '#f7a35c', '#8085e9', '#f15c80', '#e4d354', '#2b908f', '#f45b5b', '#91e8e1'];
+},{}],"YLGK":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.calcDerivatives = exports.calcMedian = exports.getSensorNames = void 0;
+exports.calcSummary = exports.sliceClassData = exports.calcMedian = exports.getSensorNames = void 0;
+
+var _utils = require("./utils");
 
 var getSensorNames = function getSensorNames(data) {
   return Object.getOwnPropertyNames(data).map(function (name) {
@@ -298,60 +257,150 @@ var calcMedian = function calcMedian(values, minIndex, maxIndex) {
 
 exports.calcMedian = calcMedian;
 
-var calcDerivatives = function calcDerivatives(data) {
-  return getSensorNames(data).reduce(function (acc, sensor) {
-    return acc.set(sensor, calcSensorDerivatives(data, sensor));
+var sliceClassData = function sliceClassData(sensorData, classSummary) {
+  return sensorData.slice(classSummary.startIndex, classSummary.startIndex + classSummary.count);
+};
+
+exports.sliceClassData = sliceClassData;
+
+var calcSummary = function calcSummary(data) {
+  return getSensorNames(data).reduce(function (acc, sensor, index) {
+    return acc.set(sensor, calcSensorSummary(data, sensor, index));
   }, new Map());
 };
 
-exports.calcDerivatives = calcDerivatives;
+exports.calcSummary = calcSummary;
 
-var calcSensorDerivatives = function calcSensorDerivatives(data, sensor) {
+var calcSensorSummary = function calcSensorSummary(data, sensor, sensorIndex) {
   var sensorData = data[sensor];
-  var derivatives = sensorData.reduce(function (acc, val, index) {
-    var classLabel = data.class_label[index];
+  var summary = sensorData.reduce(function (acc, val, index) {
+    var classLabel = data.class_label[index].toString();
+    var classData = acc.classes.get(classLabel);
 
-    if (classLabel === 1) {
-      acc.sumPos += val;
-      acc.sumSquaresPos += val * val;
-      acc.classPos.push(val);
-    } else if (classLabel === -1) {
-      acc.sumNeg += val;
-      acc.sumSquaresNeg += val * val;
-      acc.classNeg.push(val);
-    } else {
-      console.warn("Unexpected class label ".concat(classLabel));
+    if (!classData) {
+      classData = {
+        startIndex: index,
+        count: 0,
+        min: minInit,
+        max: maxInit,
+        sum: 0,
+        sumSquares: 0
+      };
+      acc.classes.set(classLabel, classData);
     }
 
+    classData.count++;
+    classData.min = Math.min(classData.min, val);
+    classData.max = Math.max(classData.max, val);
+    classData.sum += val;
+    classData.sumSquares += val * val;
     acc.min = Math.min(acc.min, val);
     acc.max = Math.max(acc.max, val);
     return acc;
   }, {
-    min: Number.POSITIVE_INFINITY,
-    max: Number.NEGATIVE_INFINITY,
-    sumPos: 0,
-    sumNeg: 0,
-    sumSquaresPos: 0,
-    sumSquaresNeg: 0,
-    classPos: [],
-    classNeg: []
+    min: minInit,
+    max: maxInit,
+    classes: new Map()
   });
-
-  if (!Number.isFinite(derivatives.min)) {
-    derivatives.min = 0;
-  }
-
-  if (!Number.isFinite(derivatives.max)) {
-    derivatives.max = 1;
-  }
-
-  derivatives.meanPos = derivatives.sumPos / derivatives.classPos.length;
-  derivatives.meanNeg = derivatives.sumNeg / derivatives.classNeg.length;
-  derivatives.deviationPos = Math.sqrt((derivatives.sumSquaresPos - derivatives.sumPos * derivatives.sumPos / derivatives.classPos.length) / (derivatives.classPos.length - 1));
-  derivatives.deviationNeg = Math.sqrt((derivatives.sumSquaresNeg - derivatives.sumNeg * derivatives.sumNeg / derivatives.classNeg.length) / (derivatives.classNeg.length - 1));
-  return derivatives;
+  summary.min = normMin(summary.min);
+  summary.max = normMax(summary.max);
+  summary.color = (0, _utils.getColor)(sensorIndex);
+  summary.classes.forEach(function (classData, _classLabel) {
+    classData.min = normMin(classData.min);
+    classData.max = normMax(classData.max);
+    classData.mean = classData.sum / classData.count;
+    classData.deviation = Math.sqrt((classData.sumSquares - classData.sum * classData.sum / classData.count) / (classData.count - 1));
+  });
+  return summary;
 };
-},{}],"vJCU":[function(require,module,exports) {
+
+var minInit = Number.POSITIVE_INFINITY;
+var maxInit = Number.NEGATIVE_INFINITY;
+
+var normMin = function normMin(min) {
+  return Number.isFinite(min) ? min : 0;
+};
+
+var normMax = function normMax(max) {
+  return Number.isFinite(max) ? max : 1;
+};
+},{"./utils":"MgTz"}],"iLUa":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.sensorDataChart = void 0;
+
+var _utils = require("../utils");
+
+var _dataEngine = require("../dataEngine");
+
+var sensorDataChart = function sensorDataChart(sensor, data, summary, classLabel) {
+  var sensorData = data[sensor];
+
+  if (!sensorData) {
+    throw new Error("Data doens't exist for the '".concat(sensor, "' sensor"));
+  }
+
+  var sensorSummary = summary.get(sensor);
+
+  if (!sensorSummary) {
+    throw new Error("Summary doesn't exist for the '".concat(sensor, "' sensor"));
+  }
+
+  var classSummary = sensorSummary.classes.get(classLabel);
+
+  if (!classSummary) {
+    throw new Error("The '".concat(classLabel, "' class doesn't exist in the '").concat(sensor, "' sensor data"));
+  }
+
+  var seriesData = (0, _dataEngine.sliceClassData)(sensorData, classSummary);
+  var sensorName = (0, _utils.readableName)(sensor);
+  var title = "".concat(sensorName, " (class ").concat(classLabel, ")");
+  var min = Math.floor(sensorSummary.min);
+  var max = Math.ceil(sensorSummary.max);
+  var mean = classSummary.mean;
+  return {
+    chart: {
+      type: 'line'
+    },
+    title: {
+      text: title
+    },
+    xAxis: {},
+    yAxis: {
+      min: min,
+      max: max,
+      title: {
+        text: null
+      },
+      plotLines: [{
+        value: mean,
+        color: 'black',
+        dashStyle: 'shortdash',
+        width: 2,
+        zIndex: 4,
+        label: {
+          text: "mean (".concat(mean.toFixed(2), ")"),
+          style: {
+            fontWeight: 'bold'
+          }
+        }
+      }]
+    },
+    series: [{
+      data: seriesData,
+      name: sensorName,
+      showInLegend: false,
+      color: sensorSummary.color,
+      zIndex: 1
+    }]
+  };
+};
+
+exports.sensorDataChart = sensorDataChart;
+},{"../utils":"MgTz","../dataEngine":"YLGK"}],"vJCU":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -359,9 +408,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.sensorBoxChart = void 0;
 
-var _chartUtils = require("./chartUtils");
-
 var _dataEngine = require("../dataEngine");
+
+var _utils = require("../utils");
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
@@ -371,24 +420,59 @@ function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) ||
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+var sensorBoxChart = function sensorBoxChart(sensor, data, summary, classLabels) {
+  var sensorData = data[sensor];
 
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+  if (!sensorData) {
+    throw new Error("Data doens't exist for the '".concat(sensor, "' sensor"));
+  }
 
-function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+  var sensorSummary = summary.get(sensor);
 
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+  if (!sensorSummary) {
+    throw new Error("Summary doesn't exist for the '".concat(sensor, "' sensor"));
+  }
 
-var sensorBoxChart = function sensorBoxChart(sensor, index, sensorData, min, max) {
+  var classSummaries = classLabels.map(function (classLabel) {
+    return sensorSummary.classes.get(classLabel);
+  }).filter(function (classSummary) {
+    return !!classSummary;
+  });
+
+  if (classSummaries.length < classLabels.length) {
+    throw new Error("".concat(classLabels.length - classSummaries.length, " of ").concat(classLabels.length, " classes are not present in data"));
+  }
+
+  var seriesData = classSummaries.map(function (classSummary) {
+    return (0, _dataEngine.sliceClassData)(sensorData, classSummary);
+  }).map(function (classData) {
+    return classData.sort();
+  }).map(function (values) {
+    var _calcMedian = (0, _dataEngine.calcMedian)(values, 0, values.length - 1),
+        _calcMedian2 = _slicedToArray(_calcMedian, 3),
+        median = _calcMedian2[0],
+        medianIndexLeft = _calcMedian2[1],
+        medianIndexRight = _calcMedian2[2];
+
+    var leftQuart = (0, _dataEngine.calcMedian)(values, 0, medianIndexLeft - 1)[0];
+    var rightQuart = (0, _dataEngine.calcMedian)(values, medianIndexRight + 1, values.length - 1)[0];
+    return [values[0], leftQuart, median, rightQuart, values[values.length - 1]];
+  });
+  var categories = classLabels.map(function (classLabel) {
+    return "Class ".concat(classLabel);
+  });
+  var min = Math.floor(sensorSummary.min);
+  var max = Math.ceil(sensorSummary.max);
+  var sensorName = (0, _utils.readableName)(sensor);
   return {
     chart: {
       type: 'boxplot'
     },
     title: {
-      text: "".concat(sensor, " (by class)")
+      text: "".concat(sensorName, " (by class)")
     },
     xAxis: {
-      categories: ['Class +1', 'Class -1']
+      categories: categories
     },
     yAxis: {
       min: min,
@@ -398,30 +482,16 @@ var sensorBoxChart = function sensorBoxChart(sensor, index, sensorData, min, max
       }
     },
     series: [{
-      data: [calcBox(sensorData.classPos), calcBox(sensorData.classNeg)],
-      name: sensor,
+      data: seriesData,
+      name: sensorName,
       showInLegend: false,
-      color: (0, _chartUtils.getChartColor)(index)
+      color: sensorSummary.color
     }]
   };
 };
 
 exports.sensorBoxChart = sensorBoxChart;
-
-var calcBox = function calcBox(values) {
-  var sortedValues = _toConsumableArray(values).sort();
-
-  var _calcMedian = (0, _dataEngine.calcMedian)(sortedValues, 0, sortedValues.length - 1),
-      _calcMedian2 = _slicedToArray(_calcMedian, 3),
-      median = _calcMedian2[0],
-      medianIndexLeft = _calcMedian2[1],
-      medianIndexRight = _calcMedian2[2];
-
-  var leftQuart = (0, _dataEngine.calcMedian)(sortedValues, 0, medianIndexLeft - 1)[0];
-  var rightQuart = (0, _dataEngine.calcMedian)(sortedValues, medianIndexRight + 1, sortedValues.length - 1)[0];
-  return [sortedValues[0], leftQuart, median, rightQuart, sortedValues[values.length - 1]];
-};
-},{"./chartUtils":"D21K","../dataEngine":"YLGK"}],"C0ac":[function(require,module,exports) {
+},{"../dataEngine":"YLGK","../utils":"MgTz"}],"C0ac":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -468,7 +538,7 @@ var classWithPercentage = (100 - boxWidthPercentage) / 2;
 var height = 400;
 
 var distributionDashboard = function (Highcharts, $) {
-  return function (data, derivatives, dashboardName) {
+  return function (data, summary, dashboardName) {
     var dashboardId = "#".concat(dashboardName);
 
     var sensorPlace = function sensorPlace() {
@@ -496,20 +566,16 @@ var distributionDashboard = function (Highcharts, $) {
 
     (0, _dataEngine.getSensorNames)(data).forEach(function (sensor, index) {
       var $sensorPlace = sensorPlace().appendTo(dashboardId);
-      var classPosId = "".concat(sensor, "-pos");
-      var classNegId = "".concat(sensor, "-neg");
+      var classLabels = ['1', '-1'];
+      classLabels.forEach(function (classLabel) {
+        var classId = "".concat(sensor, "-data-").concat(classLabel);
+        sensorDataPlace(classId).appendTo($sensorPlace);
+        var chartData = (0, _charts.sensorDataChart)(sensor, data, summary, classLabel);
+        Highcharts.chart(classId, chartData);
+      });
       var boxId = "".concat(sensor, "-box");
-      sensorDataPlace(classPosId).appendTo($sensorPlace);
-      sensorDataPlace(classNegId).appendTo($sensorPlace);
       sensorBoxPlace(boxId).appendTo($sensorPlace);
-      var sensorData = derivatives.get(sensor);
-      var min = Math.floor(sensorData.min);
-      var max = Math.ceil(sensorData.max);
-      var chartClassPos = (0, _charts.sensorDataChart)(sensor, index, sensorData.classPos, min, max, sensorData.meanPos, 'class +1');
-      var chartClassNeg = (0, _charts.sensorDataChart)(sensor, index, sensorData.classNeg, min, max, sensorData.meanNeg, 'class -1');
-      var chartBox = (0, _charts.sensorBoxChart)(sensor, index, sensorData, min, max);
-      Highcharts.chart(classPosId, chartClassPos);
-      Highcharts.chart(classNegId, chartClassNeg);
+      var chartBox = (0, _charts.sensorBoxChart)(sensor, data, summary, classLabels);
       Highcharts.chart(boxId, chartBox);
     });
   };
@@ -524,15 +590,79 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.sensorCorrChart = void 0;
 
-var _chartUtils = require("./chartUtils");
+var _utils = require("../utils");
 
-var sensorCorrChart = function sensorCorrChart(sensorA, sensorB, dataA, dataB, minA, maxA, minB, maxB, index, meanA, meanB, devA, devB, p1, p2, r) {
+var sensorCorrChart = function sensorCorrChart(sensorX, sensorY, data, summary, classLabel) {
+  var sensorDataX = data[sensorX];
+
+  if (!sensorDataX) {
+    throw new Error("Data doens't exist for the '".concat(sensorX, "' sensor"));
+  }
+
+  var sensorDataY = data[sensorY];
+
+  if (!sensorDataY) {
+    throw new Error("Data doens't exist for the '".concat(sensorY, "' sensor"));
+  }
+
+  var summaryX = summary.get(sensorX);
+
+  if (!summaryX) {
+    throw new Error("Summary doesn't exist for the '".concat(sensorX, "' sensor"));
+  }
+
+  var summaryY = summary.get(sensorY);
+
+  if (!summaryY) {
+    throw new Error("Summary doesn't exist for the '".concat(sensorY, "' sensor"));
+  }
+
+  var classSummaryX = summaryX.classes.get(classLabel);
+
+  if (!classSummaryX) {
+    throw new Error("The '".concat(classLabel, "' class doesn't exist in the '").concat(sensorX, "' sensor data"));
+  }
+
+  var classSummaryY = summaryY.classes.get(classLabel);
+
+  if (!classSummaryY) {
+    throw new Error("The '".concat(classLabel, "' class doesn't exist in the '").concat(sensorY, "' sensor data"));
+  }
+
+  if (classSummaryX.count !== classSummaryY.count) {
+    throw new Error("The ".concat(classLabel, " class data have different length between ").concat(sensorX, " and ").concat(sensorY));
+  }
+
+  var n = classSummaryX.count;
+  var seriesData = [];
+  var covariance = 0;
+
+  for (var i = 0; i < n; i++) {
+    var valX = sensorDataX[classSummaryX.startIndex + i];
+    var valY = sensorDataY[classSummaryY.startIndex + i];
+    covariance += (valX - classSummaryX.mean) * (valY - classSummaryY.mean);
+    seriesData.push([valX, valY]);
+  }
+
+  covariance /= n - 1;
+  var correlation = covariance / (classSummaryX.deviation * classSummaryY.deviation);
+  var rSquared = (correlation * correlation * 100).toFixed(2);
+  var a = correlation * classSummaryY.deviation / classSummaryX.deviation;
+  var b = classSummaryY.mean - a * classSummaryX.mean;
+  var minX = Math.floor(classSummaryX.min);
+  var maxX = Math.ceil(classSummaryX.max);
+  var minY = Math.floor(classSummaryY.min);
+  var maxY = Math.ceil(classSummaryY.max);
+  var p1 = [minX, a * minX + b];
+  var p2 = [maxX, a * maxX + b];
+  var nameX = (0, _utils.readableName)(sensorX);
+  var nameY = (0, _utils.readableName)(sensorY);
   return {
     chart: {
       type: 'scatter'
     },
     title: {
-      text: "".concat(sensorA, " vs ").concat(sensorB)
+      text: "".concat(nameX, " - ").concat(nameY)
     },
     legend: {
       symbolPadding: 0,
@@ -540,58 +670,28 @@ var sensorCorrChart = function sensorCorrChart(sensorA, sensorB, dataA, dataB, m
       symbolRadius: 0
     },
     xAxis: {
-      min: minA,
-      max: maxA,
+      min: minX,
+      max: maxX,
       title: {
-        text: sensorA
+        text: nameX
       },
       gridLineWidth: 1
-      /*plotLines: [{
-          value: meanA,
-          color: 'black',
-          dashStyle: 'shortdash',
-          width: 2,
-          zIndex: 4,
-          label: {
-              text: `mean (${meanA.toFixed(2)})`,
-              style: {
-                  fontWeight: 'bold',
-              }
-          },
-      }],*/
-
     },
     yAxis: {
-      min: minB,
-      max: maxB,
+      min: minY,
+      max: maxY,
       title: {
-        text: sensorB
+        text: nameY
       }
-      /*plotLines: [{
-          value: meanB,
-          color: 'black',
-          dashStyle: 'shortdash',
-          width: 2,
-          zIndex: 4,
-          label: {
-              text: `mean (${meanB.toFixed(2)})`,
-              style: {
-                  fontWeight: 'bold',
-              }
-          },
-      }],*/
-
     },
     series: [{
       name: 'values',
       showInLegend: false,
-      data: dataA.map(function (valA, index) {
-        return [valA, dataB[index]];
-      }),
-      color: (0, _chartUtils.getChartColor)(index)
+      data: seriesData,
+      color: summaryY.color
     }, {
       type: 'line',
-      name: "R\xB2 = ".concat(r, "%"),
+      name: "R\xB2 = ".concat(rSquared, "%"),
       data: [p1, p2],
       color: 'black',
       dashStyle: 'shortdash',
@@ -609,7 +709,7 @@ var sensorCorrChart = function sensorCorrChart(sensorA, sensorB, dataA, dataB, m
 };
 
 exports.sensorCorrChart = sensorCorrChart;
-},{"./chartUtils":"D21K"}],"LZKf":[function(require,module,exports) {
+},{"../utils":"MgTz"}],"LZKf":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -625,86 +725,40 @@ var height = 450;
 var widthPercent = 33;
 
 var correlationDashboard = function (Highcharts, $) {
-  return function (data, derivatives, dashboardName) {
+  return function (data, summary, dashboardName) {
     var dashboardId = "#".concat(dashboardName);
     var sensors = (0, _dataEngine.getSensorNames)(data);
-    var currentSensor = sensors[0];
-    var enablePos = true;
-    var enableNeg = true;
-
-    var getRadioValue = function getRadioValue() {
-      if (enablePos) {
-        return 'classPos';
-      }
-
-      if (enableNeg) {
-        return 'classNeg';
-      }
-
-      console.warn('Unexpected enableClass state');
-    };
-
-    var setRadioValue = function setRadioValue(value) {
-      enablePos = value === 'classPos';
-      enableNeg = value === 'classNeg';
-    };
-
+    var sensorX = sensors[0];
+    var classLabel = '1';
     var $chartContainer = $("".concat(dashboardId, " .correlationCharts"));
-
-    var getSensorData = function getSensorData(sensorData) {
-      if (enablePos) {
-        return sensorData.classPos;
-      }
-
-      if (enableNeg) {
-        return sensorData.classNeg;
-      }
-    };
 
     var buildCharts = function buildCharts() {
       $chartContainer.empty();
-      sensors.forEach(function (sensor, index) {
-        if (sensor === currentSensor) {
+      sensors.forEach(function (sensorY, index) {
+        if (sensorY === sensorX) {
           return;
         }
 
-        var chartId = "".concat(currentSensor, "-").concat(sensor);
+        var chartId = "".concat(sensorX, "-").concat(sensorY);
         $('<div/>').attr('id', chartId).css({
           display: 'inline-block',
           width: "".concat(widthPercent, "%"),
           height: "".concat(height, "px")
         }).appendTo($chartContainer);
-        var sensorDataA = derivatives.get(currentSensor);
-        var sensorDataB = derivatives.get(sensor);
-        var dataA = getSensorData(sensorDataA);
-        var dataB = getSensorData(sensorDataB);
-        var xy = 0;
-
-        for (var i = 0; i < dataA.length; i++) {
-          xy += (dataA[i] - sensorDataA.meanPos) * (dataB[i] - sensorDataB.meanPos);
-        }
-
-        xy /= sensorDataA.deviationPos * sensorDataA.deviationPos;
-        var r = xy / (dataA.length - 1); // const r = xy / Math.sqrt(sensorDataA.sumSquaresNeg * sensorDataB.sumSquaresNeg);
-
-        var a = r * sensorDataB.deviationPos / sensorDataA.deviationPos;
-        var b = sensorDataB.meanPos - a * sensorDataA.meanPos;
-        var p1 = [sensorDataA.min, a * sensorDataA.min + b];
-        var p2 = [sensorDataA.max, a * sensorDataA.max + b];
-        var chart = (0, _sensorCorrChart.sensorCorrChart)(currentSensor, sensor, dataA, dataB, sensorDataA.min, sensorDataA.max, sensorDataB.min, sensorDataB.max, index, sensorDataA.meanPos, sensorDataB.meanPos, sensorDataA.deviationPos, sensorDataB.deviationPos, p1, p2, (r * r * 100).toFixed(2));
+        var chart = (0, _sensorCorrChart.sensorCorrChart)(sensorX, sensorY, data, summary, classLabel);
         Highcharts.chart(chartId, chart);
       });
     };
 
     $("".concat(dashboardId, " .sensorSelect")).append(sensors.map(function (sensor) {
       return $('<option/>').text(sensor);
-    })).val(currentSensor).on('change', function () {
-      currentSensor = this.value;
+    })).val(sensorX).on('change', function () {
+      sensorX = this.value;
       buildCharts();
     });
-    $("".concat(dashboardId, " input[type=radio][name=checkClass][value=").concat(getRadioValue(), "]")).prop('checked', true);
+    $("".concat(dashboardId, " input[type=radio][name=checkClass][value=").concat(classLabel, "]")).prop('checked', true);
     $("".concat(dashboardId, " input[type=radio][name=checkClass]")).change(function () {
-      setRadioValue(this.value);
+      classLabel = this.value;
       buildCharts();
     });
     buildCharts();
@@ -747,7 +801,7 @@ var _dataEngine = require("./dataEngine");
 
 var layout = function ($) {
   return function _callee(sidebarName, contentName) {
-    var contentId, dashboardMap, data, derivatives, initDashboard, onItemSelected, bar;
+    var contentId, dashboardMap, data, summary, initDashboard, onItemSelected, bar;
     return regeneratorRuntime.async(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
@@ -755,7 +809,7 @@ var layout = function ($) {
             contentId = "#".concat(contentName);
             dashboardMap = new Map();
             data = null;
-            derivatives = null;
+            summary = null;
 
             initDashboard = function initDashboard(dashboardId) {
               if (dashboardMap.has(dashboardId)) {
@@ -765,7 +819,7 @@ var layout = function ($) {
               var factory = _dashboards.dashboardFactory[dashboardId];
 
               if (factory) {
-                dashboardMap.set(dashboardId, factory(data, derivatives, dashboardId));
+                dashboardMap.set(dashboardId, factory(data, summary, dashboardId));
               }
             };
 
@@ -789,11 +843,11 @@ var layout = function ($) {
             data = _context.sent.sensor_data;
             _context.next = 12;
             return regeneratorRuntime.awrap(new Promise(function (res, _rej) {
-              return res((0, _dataEngine.calcDerivatives)(data));
+              return res((0, _dataEngine.calcSummary)(data));
             }));
 
           case 12:
-            derivatives = _context.sent;
+            summary = _context.sent;
             return _context.abrupt("return", {
               selectDashboard: bar.selectItem
             });
