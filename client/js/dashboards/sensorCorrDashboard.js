@@ -33,7 +33,7 @@ export const sensorCorrDashboard = ((Highcharts, $) => (data, summary, dashboard
                 })
                 .appendTo($chartContainer);
 
-            const chart = sensorCorrChart(sensorX, sensorY, data, summary, classLabel);
+            const chart = sensorCorrChart(sensorX, sensorY, data, summary, classLabel, classLabel);
 
             Highcharts.chart(chartId, chart);
         });

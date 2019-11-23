@@ -1,6 +1,6 @@
 import { readableName } from '../utils';
 
-export const sensorCorrChart = (sensorX, sensorY, data, summary, classLabel) => {
+export const sensorCorrChart = (sensorX, sensorY, data, summary, classLabelX, classLabelY) => {
     const sensorDataX = data[sensorX];
     if (!sensorDataX) {
         throw new Error(`Data doens't exist for the '${sensorX}' sensor`);
@@ -21,18 +21,18 @@ export const sensorCorrChart = (sensorX, sensorY, data, summary, classLabel) => 
         throw new Error(`Summary doesn't exist for the '${sensorY}' sensor`);
     }
 
-    const classSummaryX = summaryX.classes.get(classLabel);
+    const classSummaryX = summaryX.classes.get(classLabelX);
     if (!classSummaryX) {
-        throw new Error(`The '${classLabel}' class doesn't exist in the '${sensorX}' sensor data`);
+        throw new Error(`The '${classLabelX}' class doesn't exist in the '${sensorX}' sensor data`);
     }
 
-    const classSummaryY = summaryY.classes.get(classLabel);
+    const classSummaryY = summaryY.classes.get(classLabelY);
     if (!classSummaryY) {
-        throw new Error(`The '${classLabel}' class doesn't exist in the '${sensorY}' sensor data`);
+        throw new Error(`The '${classLabelY}' class doesn't exist in the '${sensorY}' sensor data`);
     }
 
     if (classSummaryX.count !== classSummaryY.count) {
-        throw new Error(`The ${classLabel} class data have different length between ${sensorX} and ${sensorY}`);
+        throw new Error(`The class data differ between ${sensorX}/${classLabelX} and ${sensorY}/${classLabelY}`);
     }
 
     const n = classSummaryX.count;
@@ -67,13 +67,19 @@ export const sensorCorrChart = (sensorX, sensorY, data, summary, classLabel) => 
 
     const nameX = readableName(sensorX);
     const nameY = readableName(sensorY);
+    const classNameX = `class ${classLabelX}`;
+    const classNameY = `class ${classLabelY}`;
+
+    const title = sensorX === sensorY ? `${nameX} - ${classNameX} / ${classNameY}` : `${classNameX} - ${nameX} / ${nameY}`;
+    const titleX = sensorX === sensorY ? classNameX : nameX;
+    const titleY = sensorX === sensorY ? classNameY : nameY;
 
     return {
         chart: {
             type: 'scatter',
         },
         title: {
-            text: `${nameX} - ${nameY}`,
+            text: title,
         },
         legend: {
             symbolPadding: 0,
@@ -84,7 +90,7 @@ export const sensorCorrChart = (sensorX, sensorY, data, summary, classLabel) => 
             min: minX,
             max: maxX,
             title: {
-                text: nameX,
+                text: titleX,
             },
             gridLineWidth: 1,
         },
@@ -92,7 +98,7 @@ export const sensorCorrChart = (sensorX, sensorY, data, summary, classLabel) => 
             min: minY,
             max: maxY,
             title: {
-                text: nameY,
+                text: titleY,
             },
         },
         series: [{

@@ -501,7 +501,7 @@ exports.sensorCorrChart = void 0;
 
 var _utils = require("../utils");
 
-var sensorCorrChart = function sensorCorrChart(sensorX, sensorY, data, summary, classLabel) {
+var sensorCorrChart = function sensorCorrChart(sensorX, sensorY, data, summary, classLabelX, classLabelY) {
   var sensorDataX = data[sensorX];
 
   if (!sensorDataX) {
@@ -526,20 +526,20 @@ var sensorCorrChart = function sensorCorrChart(sensorX, sensorY, data, summary, 
     throw new Error("Summary doesn't exist for the '".concat(sensorY, "' sensor"));
   }
 
-  var classSummaryX = summaryX.classes.get(classLabel);
+  var classSummaryX = summaryX.classes.get(classLabelX);
 
   if (!classSummaryX) {
-    throw new Error("The '".concat(classLabel, "' class doesn't exist in the '").concat(sensorX, "' sensor data"));
+    throw new Error("The '".concat(classLabelX, "' class doesn't exist in the '").concat(sensorX, "' sensor data"));
   }
 
-  var classSummaryY = summaryY.classes.get(classLabel);
+  var classSummaryY = summaryY.classes.get(classLabelY);
 
   if (!classSummaryY) {
-    throw new Error("The '".concat(classLabel, "' class doesn't exist in the '").concat(sensorY, "' sensor data"));
+    throw new Error("The '".concat(classLabelY, "' class doesn't exist in the '").concat(sensorY, "' sensor data"));
   }
 
   if (classSummaryX.count !== classSummaryY.count) {
-    throw new Error("The ".concat(classLabel, " class data have different length between ").concat(sensorX, " and ").concat(sensorY));
+    throw new Error("The class data differ between ".concat(sensorX, "/").concat(classLabelX, " and ").concat(sensorY, "/").concat(classLabelY));
   }
 
   var n = classSummaryX.count;
@@ -566,12 +566,17 @@ var sensorCorrChart = function sensorCorrChart(sensorX, sensorY, data, summary, 
   var p2 = [maxX, a * maxX + b];
   var nameX = (0, _utils.readableName)(sensorX);
   var nameY = (0, _utils.readableName)(sensorY);
+  var classNameX = "class ".concat(classLabelX);
+  var classNameY = "class ".concat(classLabelY);
+  var title = sensorX === sensorY ? "".concat(nameX, " - ").concat(classNameX, " / ").concat(classNameY) : "".concat(classNameX, " - ").concat(nameX, " / ").concat(nameY);
+  var titleX = sensorX === sensorY ? classNameX : nameX;
+  var titleY = sensorX === sensorY ? classNameY : nameY;
   return {
     chart: {
       type: 'scatter'
     },
     title: {
-      text: "".concat(nameX, " - ").concat(nameY)
+      text: title
     },
     legend: {
       symbolPadding: 0,
@@ -582,7 +587,7 @@ var sensorCorrChart = function sensorCorrChart(sensorX, sensorY, data, summary, 
       min: minX,
       max: maxX,
       title: {
-        text: nameX
+        text: titleX
       },
       gridLineWidth: 1
     },
@@ -590,7 +595,7 @@ var sensorCorrChart = function sensorCorrChart(sensorX, sensorY, data, summary, 
       min: minY,
       max: maxY,
       title: {
-        text: nameY
+        text: titleY
       }
     },
     series: [{
@@ -757,7 +762,7 @@ var sensorCorrDashboard = function (Highcharts, $) {
           width: "".concat(widthPercent, "%"),
           height: "".concat(height, "px")
         }).appendTo($chartContainer);
-        var chart = (0, _charts.sensorCorrChart)(sensorX, sensorY, data, summary, classLabel);
+        var chart = (0, _charts.sensorCorrChart)(sensorX, sensorY, data, summary, classLabel, classLabel);
         Highcharts.chart(chartId, chart);
       });
     };
@@ -778,6 +783,39 @@ var sensorCorrDashboard = function (Highcharts, $) {
 }(Highcharts, jQuery);
 
 exports.sensorCorrDashboard = sensorCorrDashboard;
+},{"../dataEngine":"YLGK","../charts":"C0ac"}],"SdJj":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.classCorrDashboard = void 0;
+
+var _dataEngine = require("../dataEngine");
+
+var _charts = require("../charts");
+
+var height = 450;
+var widthPercent = 33;
+
+var classCorrDashboard = function (Highcharts, $) {
+  return function (data, summary, dashboardName) {
+    var dashboardId = "#".concat(dashboardName);
+    var sensors = (0, _dataEngine.getSensorNames)(data);
+    sensors.forEach(function (sensor) {
+      var chartId = "".concat(sensor, "-class-to-class");
+      $('<div/>').attr('id', chartId).css({
+        display: 'inline-block',
+        width: "".concat(widthPercent, "%"),
+        height: "".concat(height, "px")
+      }).appendTo(dashboardId);
+      var chart = (0, _charts.sensorCorrChart)(sensor, sensor, data, summary, '1', '-1');
+      Highcharts.chart(chartId, chart);
+    });
+  };
+}(Highcharts, jQuery);
+
+exports.classCorrDashboard = classCorrDashboard;
 },{"../dataEngine":"YLGK","../charts":"C0ac"}],"uXW5":[function(require,module,exports) {
 "use strict";
 
@@ -790,12 +828,15 @@ var _sensorDistDashboard = require("./sensorDistDashboard");
 
 var _sensorCorrDashboard = require("./sensorCorrDashboard");
 
+var _classCorrDashboard = require("./classCorrDashboard");
+
 var dashboardFactory = {
   sensorDistDashboard: _sensorDistDashboard.sensorDistDashboard,
-  sensorCorrDashboard: _sensorCorrDashboard.sensorCorrDashboard
+  sensorCorrDashboard: _sensorCorrDashboard.sensorCorrDashboard,
+  classCorrDashboard: _classCorrDashboard.classCorrDashboard
 };
 exports.dashboardFactory = dashboardFactory;
-},{"./sensorDistDashboard":"OtiO","./sensorCorrDashboard":"dR46"}],"dXr0":[function(require,module,exports) {
+},{"./sensorDistDashboard":"OtiO","./sensorCorrDashboard":"dR46","./classCorrDashboard":"SdJj"}],"dXr0":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
