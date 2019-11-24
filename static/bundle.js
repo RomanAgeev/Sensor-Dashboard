@@ -150,7 +150,7 @@ var sidebar = function ($) {
       });
     });
     $("#".concat(placeholderId, " .collapse-button")).on('click', function () {
-      $(placeholderId).removeClass('visible');
+      $("#".concat(placeholderId)).removeClass('visible');
     });
     $("#".concat(placeholderId, "-small .expand-button")).on('click', function () {
       $("#".concat(placeholderId)).addClass('visible');

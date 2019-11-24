@@ -22,7 +22,7 @@ export const sidebar = ($ => (placeholderId, itemSelected) => {
     });
 
     $(`#${placeholderId} .collapse-button`).on('click', function() {
-        $(placeholderId).removeClass('visible');
+        $(`#${placeholderId}`).removeClass('visible');
     });
 
     $(`#${placeholderId}-small .expand-button`).on('click', function() {
