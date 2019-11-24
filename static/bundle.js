@@ -747,7 +747,7 @@ var sensorCorrDashboard = function (Highcharts, $) {
     var sensors = (0, _dataEngine.getSensorNames)(data);
     var sensorX = sensors[0];
     var classLabel = '1';
-    var $chartContainer = $("".concat(dashboardId, " .correlationCharts"));
+    var $chartContainer = $("".concat(dashboardId, " #corrCharts"));
 
     var buildCharts = function buildCharts() {
       $chartContainer.empty();
@@ -767,14 +767,14 @@ var sensorCorrDashboard = function (Highcharts, $) {
       });
     };
 
-    $("".concat(dashboardId, " .sensorSelect")).append(sensors.map(function (sensor) {
+    $("".concat(dashboardId, " #sensorSelect")).append(sensors.map(function (sensor) {
       return $('<option/>').text(sensor);
     })).val(sensorX).on('change', function () {
       sensorX = this.value;
       buildCharts();
     });
-    $("".concat(dashboardId, " input[type=radio][name=checkClass][value=").concat(classLabel, "]")).prop('checked', true);
-    $("".concat(dashboardId, " input[type=radio][name=checkClass]")).change(function () {
+    $("".concat(dashboardId, " input[type=radio][name=classSelect][value=").concat(classLabel, "]")).prop('checked', true);
+    $("".concat(dashboardId, " input[type=radio][name=classSelect]")).change(function () {
       classLabel = this.value;
       buildCharts();
     });

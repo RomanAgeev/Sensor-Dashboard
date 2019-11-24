@@ -44,34 +44,37 @@
                     <span class="navbar-text">
                         Choose sensor
                     </span>
-                    <select class="form-control sensorSelect">
+
+                    <select id="sensorSelect" class="form-control navbar-small-indent">
                     </select>
-                    <div class="custom-control custom-radio checkClassPos">
+
+                    <div class="custom-control custom-radio navbar-group-indent">
                         <input
                             type="radio"
                             class="custom-control-input"
-                            id="correlationDashboard-classPos"
-                            name="checkClass"
+                            id="classPos"
+                            name="classSelect"
                             value="1">
                         <label
                             class="custom-control-label navbar-label"
-                            for="correlationDashboard-classPos">Class +1</label>
+                            for="classPos">Class +1</label>
                     </div>
-                    <div class="custom-control custom-radio checkClassNeg">
+
+                    <div class="custom-control custom-radio navbar-indent">
                         <input
                             type="radio"
                             class="custom-control-input"
-                            id="correlationDashboard-classNeg"
-                            name="checkClass"
+                            id="classNeg"
+                            name="classSelect"
                             value="-1">
                         <label
                             class="custom-control-label navbar-label"
-                            for="correlationDashboard-classNeg">Class -1</label>
+                            for="classNeg">Class -1</label>
                     </div>
                 </div>
             </nav>
         </div>
-        <div class="correlationCharts">
+        <div id="corrCharts">
         </div>
     </div>
 </div>

@@ -1,102 +1,103 @@
 @import "variables";
 
-#sidebar-small {
+%sidebar-base {
     position: fixed;
     top: 0;
     left: 0;
-    width: $sidebar-small-width;
     height: 100%;
-    background: var(--dark);
-    color: var(--light);
-  }
-  
-  #sidebar-small .expand-button {
-    padding: 20px 20px 20px 15px;
-    background: inherit;
-    font-size: 1.3em;
-    cursor: pointer;
-  }
-  
-  #sidebar-small .expand-button:hover {
-    color: var(--gray);
-  }
-  
-  #sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: $sidebar-width;
-    height: 100%;
-    background: var(--dark);
-    color: var(--light);
-    transition: all 0.3s;
-    z-index: 100;
-  }
-  
-  #sidebar .header {
-    font-size: 1.5em;
-    padding: 20px;
-    background: inherit;
-    display: inline-block;
-  }
-  
-  #sidebar .collapse-button {
-    float: right;
-    padding: 20px;
-    background: inherit;
-    font-size: 1.5em;
-    cursor: pointer;
-    display: none;
-    transition: all 0.3s;
-  }
-  
-  #sidebar .collapse-button:hover {
-    color: var(--gray);
-  }
-  
-  #sidebar .item, #sidebar .groupitem {
-    display: block;
-    color: inherit;
-    padding: 10px 20px;
-    text-decoration: none;
-    cursor: pointer;
-  }
-  
-  #sidebar .subitem {
-    padding-left: 40px;
-  }
-  
-  #sidebar .item:hover, #sidebar .groupitem:hover {
-    background: var(--gray);
-  }
-  
-  #sidebar .item.active {
-    color: var(--dark);
-    background: var(--light);
-  }
-  
-  #sidebar .dropdown-toggle[data-toggle="collapse"] {
-    position: relative;
-  }
-  
-  #sidebar .dropdown-toggle::after {
-    display: block;
-    position: absolute;
-    top: 50%;
-    right: 20px;
-    transform: translateY(-50%);
-  }
-  
-  @media (max-width: 768px) {
-    #sidebar {
-      margin-left: -250px;
-    }
-  
-    #sidebar.visible {
-      margin-left: 0;
-    }    
+    background: $dark;
+    color: $light;
+}
 
-    #sidebar .collapse-button {
-      display: initial;
+#sidebar-small {
+    @extend %sidebar-base;
+
+    width: $sidebar-small-width;
+  
+    .expand-button {
+        padding: 20px 20px 20px 15px;
+        background: inherit;
+        font-size: 1.3em;
+        cursor: pointer;
     }
-  }
+
+    .expand-button:hover {
+        color: $gray-700;
+    }
+}
+  
+#sidebar {
+    @extend %sidebar-base;
+
+    width: $sidebar-width;
+    transition: all 0.3s;
+    z-index: 100;  
+  
+    .header {
+        font-size: 1.5em;
+        padding: 20px;
+        background: inherit;
+        display: inline-block;
+    }
+    
+    .collapse-button {
+        float: right;
+        padding: 20px;
+        background: inherit;
+        font-size: 1.5em;
+        cursor: pointer;
+        display: none;
+        transition: all 0.3s;
+    }
+    
+    .collapse-button:hover {
+        color: $gray-700;
+    }
+    
+    .item, .group-item {
+        display: block;
+        color: inherit;
+        padding: 10px 20px;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    
+    .subitem {
+        padding-left: 40px;
+    }
+    
+    .item:hover, .group-item:hover {
+        background: $gray-700;
+    }
+    
+    .item.active {
+        color: $dark;
+        background: $light;
+    }
+    
+    .dropdown-toggle[data-toggle="collapse"] {
+        position: relative;
+    }
+    
+    .dropdown-toggle::after {
+        display: block;
+        position: absolute;
+        top: 50%;
+        right: 20px;
+        transform: translateY(-50%);
+    }
+}
+  
+@media (max-width: $media-small) {
+    #sidebar {
+        margin-left: (-$sidebar-width);
+
+        &.visible {
+            margin-left: 0;
+        }
+    
+        .collapse-button {
+            display: initial;
+        }
+    }
+}

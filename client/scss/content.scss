@@ -1,26 +1,26 @@
 @import "variables";
 
 #content {
-  margin-left: $sidebar-width;
-  padding: 20px;
-  transition: all 0.3s;
-}
-  
-#content.large {
-  margin-left: $sidebar-small-width;
-  transition: all 0.3s;
+    margin-left: $sidebar-width;
+    padding: 20px;
+    transition: all 0.3s;
+
+    &.large {
+        margin-left: $sidebar-small-width;
+        transition: all 0.3s;
+    }
+    
+    .item.active {
+        display: block;
+    }
+    
+    .item {
+        display: none;
+    }
 }
 
-#content .item.active {
-  display: block;
-}
-
-#content .item {
-  display: none;
-}
-
-@media (max-width: 768px) {
-  #content {
-    margin-left: $sidebar-small-width;
-  }  
+@media (max-width: $media-small) {
+    #content {
+        margin-left: $sidebar-small-width;
+    }  
 }

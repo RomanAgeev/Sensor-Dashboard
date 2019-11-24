@@ -1,0 +1,27 @@
+.navbar-container {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+.navbar {
+    margin-bottom: 20px;
+    background-color: #e3f2fd;
+}
+
+.navbar-indent {
+    margin-left: 15px;
+}
+
+.navbar-small-indent {
+    margin-left: 10px;
+}
+
+.navbar-group-indent {
+    margin-left: 30px;
+}
+
+.navbar-label {
+    color: black;
+    opacity: 0.6;
+}

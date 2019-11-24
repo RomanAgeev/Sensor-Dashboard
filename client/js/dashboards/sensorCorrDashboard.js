@@ -12,7 +12,7 @@ export const sensorCorrDashboard = ((Highcharts, $) => (data, summary, dashboard
     let sensorX = sensors[0];
     let classLabel = '1';
 
-    const $chartContainer = $(`${dashboardId} .correlationCharts`);
+    const $chartContainer = $(`${dashboardId} #corrCharts`);
 
     const buildCharts = () => {
         $chartContainer.empty();
@@ -39,7 +39,7 @@ export const sensorCorrDashboard = ((Highcharts, $) => (data, summary, dashboard
         });
     };
 
-    $(`${dashboardId} .sensorSelect`)
+    $(`${dashboardId} #sensorSelect`)
         .append(sensors.map(sensor => $('<option/>').text(sensor)))
         .val(sensorX)
         .on('change', function() {
@@ -47,10 +47,10 @@ export const sensorCorrDashboard = ((Highcharts, $) => (data, summary, dashboard
             buildCharts();
         });
 
-    $(`${dashboardId} input[type=radio][name=checkClass][value=${classLabel}]`)
+    $(`${dashboardId} input[type=radio][name=classSelect][value=${classLabel}]`)
         .prop('checked', true);
 
-    $(`${dashboardId} input[type=radio][name=checkClass]`)
+    $(`${dashboardId} input[type=radio][name=classSelect]`)
         .change(function() {
             classLabel = this.value;
             buildCharts();
