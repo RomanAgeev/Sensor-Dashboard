@@ -78,6 +78,11 @@ export const sensorCorrChart = (sensorX, sensorY, data, summary, classLabelX, cl
         chart: {
             type: 'scatter',
         },
+        plotOptions: {
+            series: {
+                animation: false,
+            }
+        },
         title: {
             text: title,
         },

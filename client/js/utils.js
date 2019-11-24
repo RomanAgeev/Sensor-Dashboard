@@ -19,3 +19,19 @@ const colors = [
     '#f45b5b',
     '#91e8e1',
 ];
+
+export const jQueryHelper = ($ => ({
+    loadingPlace: (id, width, height) =>
+        $('<div/>')
+        .attr('id', id)
+        .css({
+            display: 'inline-block',
+            width,
+            height,
+            'text-align': 'center',
+            'vertical-align': 'middle',
+            'line-height': height,
+            color: '#808080',
+        })
+        .text('Loading...'),
+}))(jQuery);

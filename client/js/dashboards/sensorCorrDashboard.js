@@ -1,6 +1,6 @@
 import { getSensorNames } from '../dataEngine';
 import { sensorCorrChart } from '../charts';
-import { reflow } from '../utils';
+import { reflow, jQueryHelper } from '../utils';
 
 const height = 450;
 const widthPercent = 33;
@@ -25,18 +25,14 @@ export const sensorCorrDashboard = ((Highcharts, $) => (data, summary, dashboard
 
             const chartId = `${sensorX}-${sensorY}`;
 
-            $('<div/>')
-                .attr('id', chartId)
-                .css({
-                    display: 'inline-block',
-                    width: `${widthPercent}%`,
-                    height: `${height}px`,
-                })
+            jQueryHelper
+                .loadingPlace(chartId, `${widthPercent}%`, `${height}px`)
                 .appendTo($chartPlace);
 
-            const chart = sensorCorrChart(sensorX, sensorY, data, summary, classLabel, classLabel);
-
-            charts.push(Highcharts.chart(chartId, chart));
+            setTimeout(() => {
+                const chart = sensorCorrChart(sensorX, sensorY, data, summary, classLabel, classLabel);
+                charts.push(Highcharts.chart(chartId, chart));
+            }, 0);
         });
 
         return charts;

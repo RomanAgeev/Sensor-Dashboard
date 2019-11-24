@@ -1,6 +1,6 @@
 import { sensorDataChart, sensorBoxChart } from '../charts';
 import { getSensorNames } from '../dataEngine';
-import { reflow } from '../utils';
+import { reflow, jQueryHelper } from '../utils';
 
 const boxWidthPercentage = 24;
 const classWithPercentage = (100 - boxWidthPercentage) / 2;
@@ -14,23 +14,8 @@ export const sensorDistDashboard = ((Highcharts, $) => (data, summary, dashboard
                 height: `${height}px`,
             });
            
-    const sensorDataPlace = id =>
-        $('<div/>')
-            .attr('id', id)
-            .css({
-                'display': 'inline-block',
-                'width': `${classWithPercentage}%`,
-                'height': '100%'
-            });
-
-    const sensorBoxPlace = id =>
-        $('<div/>')
-        .attr('id', id)
-        .css({
-            'display': 'inline-block',
-            'width': `${boxWidthPercentage}%`,
-            'height': '100%'
-        });    
+    const sensorDataPlace = id => jQueryHelper.loadingPlace(id, `${classWithPercentage}%`, `${height}px`);
+    const sensorBoxPlace = id => jQueryHelper.loadingPlace(id, `${boxWidthPercentage}%`, `${height}px`);
 
     const charts = [];
 
@@ -42,16 +27,20 @@ export const sensorDistDashboard = ((Highcharts, $) => (data, summary, dashboard
         classLabels.forEach(classLabel => {
             const classId = `${sensor}-data-${classLabel}`;
             sensorDataPlace(classId).appendTo($sensorPlace);
-            const chartData = sensorDataChart(sensor, data, summary, classLabel);
 
-            charts.push(Highcharts.chart(classId, chartData));
+            setTimeout(() => {
+                const chartData = sensorDataChart(sensor, data, summary, classLabel);
+                charts.push(Highcharts.chart(classId, chartData));
+            }, 0);
         });
 
         const boxId = `${sensor}-box`;
         sensorBoxPlace(boxId).appendTo($sensorPlace);
-        const chartBox = sensorBoxChart(sensor, data, summary, classLabels);
-
-        charts.push(Highcharts.chart(boxId, chartBox));
+        
+        setTimeout(() => {
+            const chartBox = sensorBoxChart(sensor, data, summary, classLabels);
+            charts.push(Highcharts.chart(boxId, chartBox));    
+        }, 0);
     });
 
     return {

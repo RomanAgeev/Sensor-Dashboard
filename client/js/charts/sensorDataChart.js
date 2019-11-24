@@ -29,6 +29,11 @@ export const sensorDataChart = (sensor, data, summary, classLabel) => {
         chart: {
             type: 'line',
         },
+        plotOptions: {
+            series: {
+                animation: false,
+            }
+        },
         title: {
             text: title,
         },

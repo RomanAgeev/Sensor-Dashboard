@@ -47,6 +47,11 @@ export const sensorBoxChart = (sensor, data, summary, classLabels) => {
         chart: {
             type: 'boxplot'
         },
+        plotOptions: {
+            series: {
+                animation: false,
+            }
+        },
         title: {
             text: `${sensorName} (by class)`,
         },
