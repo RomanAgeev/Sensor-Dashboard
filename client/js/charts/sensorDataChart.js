@@ -1,7 +1,7 @@
 import { readableName } from '../utils';
 import { sliceClassData } from '../dataEngine';
 
-export const sensorDataChart = (sensor, data, summary, classLabel) => {
+export const sensorDataChart = (sensor, data, summary, classLabel) => {    
     const sensorData = data[sensor];
     if (!sensorData) {
         throw new Error(`Data doens't exist for the '${sensor}' sensor`);

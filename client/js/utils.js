@@ -34,3 +34,18 @@ export const loadingBox = ($ => (id, width, height) =>
         })
         .text('Loading...')
 )(jQuery);
+
+export const errorBox = $box => $box.css({ color: '#8B0000' }).text("Error");
+
+export const defer = action => new Promise((res, rej) => {
+    setTimeout(() => {
+        let result;
+        try {
+            result = action();
+        } catch (e) {
+            rej(e);
+            return;
+        }
+        res(result);
+    }, 0)
+});

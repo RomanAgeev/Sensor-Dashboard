@@ -1,6 +1,6 @@
 import { sensorDataChart, sensorBoxChart } from '../charts';
 import { getSensorNames } from '../dataEngine';
-import { reflow, loadingBox } from '../utils';
+import { reflow, loadingBox, errorBox, defer } from '../utils';
 
 const boxWidthPercentage = 24;
 const classWithPercentage = (100 - boxWidthPercentage) / 2;
@@ -17,30 +17,39 @@ export const sensorDistDashboard = ((Highcharts, $) => (data, summary, dashboard
     const sensorDataPlace = id => loadingBox(id, `${classWithPercentage}%`, `${height}px`);
     const sensorBoxPlace = id => loadingBox(id, `${boxWidthPercentage}%`, `${height}px`);
 
+    const classLabels = ['1', '-1'];
     const charts = [];
 
     getSensorNames(data).forEach(sensor => {
         const $sensorPlace = sensorPlace().appendTo(`#${dashboardId}`);
 
-        const classLabels = ['1', '-1'];
-
         classLabels.forEach(classLabel => {
             const classId = `${sensor}-data-${classLabel}`;
-            sensorDataPlace(classId).appendTo($sensorPlace);
+            const $dataPlace = sensorDataPlace(classId).appendTo($sensorPlace);
 
-            setTimeout(() => {
+            defer(() => {
                 const chartData = sensorDataChart(sensor, data, summary, classLabel);
-                charts.push(Highcharts.chart(classId, chartData));
-            }, 0);
+                return Highcharts.chart(classId, chartData);
+            })
+            .then(chart => charts.push(chart))
+            .catch(e => {
+                console.error(e);
+                errorBox($dataPlace);
+            });
         });
 
         const boxId = `${sensor}-box`;
-        sensorBoxPlace(boxId).appendTo($sensorPlace);
+        const $boxPlace = sensorBoxPlace(boxId).appendTo($sensorPlace);
         
-        setTimeout(() => {
+        defer(() => {
             const chartBox = sensorBoxChart(sensor, data, summary, classLabels);
-            charts.push(Highcharts.chart(boxId, chartBox));    
-        }, 0);
+            return Highcharts.chart(boxId, chartBox);
+        })
+        .then(chart => charts.push(chart))
+        .catch(e => {
+            console.error(e);
+            errorBox($boxPlace);
+        });
     });
 
     return {

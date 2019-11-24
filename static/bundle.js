@@ -208,7 +208,7 @@ exports.fetchData = fetchData;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.loadingBox = exports.getColor = exports.reflow = exports.readableName = void 0;
+exports.defer = exports.errorBox = exports.loadingBox = exports.getColor = exports.reflow = exports.readableName = void 0;
 
 var readableName = function readableName(sensor) {
   var match = /^(\w+)(\d+)$/g.exec(sensor);
@@ -247,6 +247,33 @@ var loadingBox = function ($) {
 }(jQuery);
 
 exports.loadingBox = loadingBox;
+
+var errorBox = function errorBox($box) {
+  return $box.css({
+    color: '#8B0000'
+  }).text("Error");
+};
+
+exports.errorBox = errorBox;
+
+var defer = function defer(action) {
+  return new Promise(function (res, rej) {
+    setTimeout(function () {
+      var result;
+
+      try {
+        result = action();
+      } catch (e) {
+        rej(e);
+        return;
+      }
+
+      res(result);
+    }, 0);
+  });
+};
+
+exports.defer = defer;
 },{}],"YLGK":[function(require,module,exports) {
 "use strict";
 
@@ -737,24 +764,34 @@ var sensorDistDashboard = function (Highcharts, $) {
       return (0, _utils.loadingBox)(id, "".concat(boxWidthPercentage, "%"), "".concat(height, "px"));
     };
 
+    var classLabels = ['1', '-1'];
     var charts = [];
     (0, _dataEngine.getSensorNames)(data).forEach(function (sensor) {
       var $sensorPlace = sensorPlace().appendTo("#".concat(dashboardId));
-      var classLabels = ['1', '-1'];
       classLabels.forEach(function (classLabel) {
         var classId = "".concat(sensor, "-data-").concat(classLabel);
-        sensorDataPlace(classId).appendTo($sensorPlace);
-        setTimeout(function () {
+        var $dataPlace = sensorDataPlace(classId).appendTo($sensorPlace);
+        (0, _utils.defer)(function () {
           var chartData = (0, _charts.sensorDataChart)(sensor, data, summary, classLabel);
-          charts.push(Highcharts.chart(classId, chartData));
-        }, 0);
+          return Highcharts.chart(classId, chartData);
+        }).then(function (chart) {
+          return charts.push(chart);
+        }).catch(function (e) {
+          console.error(e);
+          (0, _utils.errorBox)($dataPlace);
+        });
       });
       var boxId = "".concat(sensor, "-box");
-      sensorBoxPlace(boxId).appendTo($sensorPlace);
-      setTimeout(function () {
+      var $boxPlace = sensorBoxPlace(boxId).appendTo($sensorPlace);
+      (0, _utils.defer)(function () {
         var chartBox = (0, _charts.sensorBoxChart)(sensor, data, summary, classLabels);
-        charts.push(Highcharts.chart(boxId, chartBox));
-      }, 0);
+        return Highcharts.chart(boxId, chartBox);
+      }).then(function (chart) {
+        return charts.push(chart);
+      }).catch(function (e) {
+        console.error(e);
+        (0, _utils.errorBox)($boxPlace);
+      });
     });
     return {
       activate: function activate() {
@@ -787,10 +824,10 @@ var sensorCorrDashboard = function (Highcharts, $) {
     var sensors = (0, _dataEngine.getSensorNames)(data);
     var sensorX = sensors[0];
     var classLabel = '1';
-    var $chartPlace = $("#".concat(dashboardId, " #corrCharts"));
+    var $chartsContainer = $("#".concat(dashboardId, " #corrCharts"));
 
     var buildCharts = function buildCharts() {
-      $chartPlace.empty();
+      $chartsContainer.empty();
       var charts = [];
       sensors.forEach(function (sensorY) {
         if (sensorY === sensorX) {
@@ -798,11 +835,16 @@ var sensorCorrDashboard = function (Highcharts, $) {
         }
 
         var chartId = "".concat(sensorX, "-").concat(sensorY);
-        (0, _utils.loadingBox)(chartId, "".concat(widthPercent, "%"), "".concat(height, "px")).appendTo($chartPlace);
-        setTimeout(function () {
+        var $chartPlace = (0, _utils.loadingBox)(chartId, "".concat(widthPercent, "%"), "".concat(height, "px")).appendTo($chartsContainer);
+        (0, _utils.defer)(function () {
           var chart = (0, _charts.sensorCorrChart)(sensorX, sensorY, data, summary, classLabel, classLabel);
-          charts.push(Highcharts.chart(chartId, chart));
-        }, 0);
+          return Highcharts.chart(chartId, chart);
+        }).then(function (chart) {
+          return charts.push(chart);
+        }).catch(function (e) {
+          console.error(e);
+          (0, _utils.errorBox)($chartPlace);
+        });
       });
       return charts;
     };
@@ -852,11 +894,16 @@ var classCorrDashboard = function (Highcharts, $) {
     var charts = [];
     sensors.forEach(function (sensor) {
       var chartId = "".concat(sensor, "-class-to-class");
-      (0, _utils.loadingBox)(chartId, "".concat(widthPercent, "%"), "".concat(height, "px")).appendTo("#".concat(dashboardId));
-      setTimeout(function () {
+      var $chartPlace = (0, _utils.loadingBox)(chartId, "".concat(widthPercent, "%"), "".concat(height, "px")).appendTo("#".concat(dashboardId));
+      (0, _utils.defer)(function () {
         var chart = (0, _charts.sensorCorrChart)(sensor, sensor, data, summary, '1', '-1');
-        charts.push(Highcharts.chart(chartId, chart));
-      }, 0);
+        return Highcharts.chart(chartId, chart);
+      }).then(function (chart) {
+        return charts.push(chart);
+      }).catch(function (e) {
+        console.error(e);
+        (0, _utils.errorBox)($chartPlace);
+      });
     });
     return {
       activate: function activate() {

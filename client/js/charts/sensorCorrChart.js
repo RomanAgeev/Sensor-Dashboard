@@ -1,6 +1,6 @@
 import { readableName } from '../utils';
 
-export const sensorCorrChart = (sensorX, sensorY, data, summary, classLabelX, classLabelY) => {
+export const sensorCorrChart = (sensorX, sensorY, data, summary, classLabelX, classLabelY) => {    
     const sensorDataX = data[sensorX];
     if (!sensorDataX) {
         throw new Error(`Data doens't exist for the '${sensorX}' sensor`);

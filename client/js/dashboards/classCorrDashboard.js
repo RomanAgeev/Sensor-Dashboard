@@ -1,6 +1,6 @@
 import { getSensorNames } from '../dataEngine'
 import { sensorCorrChart } from '../charts';
-import { reflow, loadingBox } from '../utils';
+import { reflow, loadingBox, errorBox, defer } from '../utils';
 
 const height = 450;
 const widthPercent = 33;
@@ -13,12 +13,17 @@ export const classCorrDashboard = ((Highcharts, $) => (data, summary, dashboardI
     sensors.forEach(sensor => {
         const chartId = `${sensor}-class-to-class`;
 
-        loadingBox(chartId, `${widthPercent}%`, `${height}px`).appendTo(`#${dashboardId}`);
+        const $chartPlace = loadingBox(chartId, `${widthPercent}%`, `${height}px`).appendTo(`#${dashboardId}`);
 
-        setTimeout(() => {
+        defer(() => {
             const chart = sensorCorrChart(sensor, sensor, data, summary, '1', '-1');
-            charts.push(Highcharts.chart(chartId, chart));
-        }, 0);
+            return Highcharts.chart(chartId, chart);
+        })
+        .then(chart => charts.push(chart))
+        .catch(e => {
+            console.error(e);
+            errorBox($chartPlace);
+        });
     });
 
     return {
