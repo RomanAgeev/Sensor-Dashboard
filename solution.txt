@@ -1,0 +1,67 @@
+Subject Details:
+
+I implemented three dashboards over sensor data to show data patterns and possible correlations.
+Every sensor is given its unique color and can be easily distinguished across the dashboards.
+
+1. The "Sensor Distribution" dashboard shows the sensor data grouped by class and reveals the common summaries such as
+    mean, min, max median, top quartile and bottom qiuartile.
+    It is achieved by two line charts (for each class) and box-and-whisker chart with summaries.
+    The general data patterns, trends and difference between classes can be explored here.
+
+2. The "Class Correlation" dashboard attempts to reveal a liner correlation between classes for a particular sensor.
+    It is achieved by scatter charts with linear regression and R-squared calculated.
+    It witnesses, in fact, there is no linear correlation between classes.
+
+3. The "Sensor Correlation" dashboard attempts to revel a linear correlation between pairs of sensors.
+    I shows the scatter chart for every pair of sensors and for every class - the sensor and the class can be chosen in the toolbar.
+    It also witnesses no linear correlation between sensors.
+
+The system is written is such a way to makes it easy to implement new dashboards and reuse the existing charts.
+In particular, both correlation dashboards (2) and (3) are built upon the same "sensorCorrChart" with different data.
+
+
+Technical Details:
+
+For this particular solution, as the User Interface is not complex enough, I decided not to use complex frontend frameworks.
+Any usage of Angular, React or Vue would unnecessarily increase the bundle size and bring the redundant complexity.
+
+The dependencies I utilized are:
+
+1. Bootstrap 4 - to make it simpler to implement toolbars, editors etc.
+2. Highcharts - as a main widget to display data.
+3. jQuery - for simpler work with dynamic DOM and DOM Events.
+4. Fetch API - for AJAX requests with javascript Promises and async/await syntax.
+    It could be possible to apply the jQuery.ajax here but I prefer the native javascript promises over the jQuery promises.
+5. SCSS - a CSS transpiler to write more expressive and brief styles.
+6. Parcel - a modern bundler which, in my view, is better then Webpack for simple cases.
+7. NodeJs - a frontend build runtime.
+
+The fontend assets are located in the ./static folder and can be rebuilt by running the npm script: "npm run build".
+
+Application Structure:
+
+The entire static markup is located in the index.html file and contains the sidebar and three dashboard placeholders:
+    "sensorDistDashboard", "classCorrDashboard", "sensorCorrDashboard".
+
+The entire static styles are located in the ./client/scss folder and contain all the styles not related to a specific chart.
+
+The application starting point is in the ./client/js/layout.js. The layout instance is created by a short script section in the index.html.
+
+The layout instantiates dashboards from the ./client/js/dashboards folder and performs a transition between them.
+Each dashboard consists of several charts from the ./client/js/charts folder.
+Each chart is a wrapper over the Highcharts options and prepares the options and series data.
+
+Data is loaded from the server by the channel layer and then is preprocessed by the dataEngine layer.
+The dataEngine makes a common data preparation for all dashboards and calculates several summaries like min, max, mean and standard deviation.
+
+The result of the dataEngine (summary) as well as initial (data) are passed to every dashboard and every chart to be processed and displayed.
+Every chart preparation is performed asynchronously to not to block the User Interface.
+
+
+Next Steps:
+
+I consider the following steps for further improvements:
+
+1. Migrate the client code to Typescript as it would make it more reliable and maintainable.
+2. Implement a hot data reload.
+3. Better adopt the dashbards to small and mobile screens by implementing flexible dashboards layout.
