@@ -5,9 +5,7 @@ import { reflow } from '../utils';
 const height = 450;
 const widthPercent = 33;
 
-export const classCorrDashboard = ((Highcharts, $) => (data, summary, dashboardName) => {
-    const dashboardId = `#${dashboardName}`;
-
+export const classCorrDashboard = ((Highcharts, $) => (data, summary, dashboardId) => {
     const sensors = getSensorNames(data);
 
     const charts = [];
@@ -22,7 +20,7 @@ export const classCorrDashboard = ((Highcharts, $) => (data, summary, dashboardN
             width: `${widthPercent}%`,
             height: `${height}px`,
         })
-        .appendTo(dashboardId);
+        .appendTo(`#${dashboardId}`);
 
         const chart = sensorCorrChart(sensor, sensor, data, summary, '1', '-1');
 

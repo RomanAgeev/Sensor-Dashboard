@@ -128,15 +128,13 @@ Object.defineProperty(exports, "__esModule", {
 exports.sidebar = void 0;
 
 var sidebar = function ($) {
-  return function (placeholderName, itemSelected) {
-    var placeholderId = "#".concat(placeholderName);
-
+  return function (placeholderId, itemSelected) {
     var selectItem = function selectItem(itemId) {
       if (!itemId) {
         return;
       }
 
-      $("".concat(placeholderId, " .item")).each(function () {
+      $("#".concat(placeholderId, " .item")).each(function () {
         if ($(this).data('item') === itemId) {
           $(this).addClass('active');
         } else {
@@ -146,20 +144,20 @@ var sidebar = function ($) {
       itemSelected(itemId);
     };
 
-    $("".concat(placeholderId, " .item")).each(function () {
+    $("#".concat(placeholderId, " .item")).each(function () {
       $(this).on('click', function (e) {
         selectItem($(e.target).data('item'));
       });
     });
-    $("".concat(placeholderId, " .collapse-button")).on('click', function () {
+    $("#".concat(placeholderId, " .collapse-button")).on('click', function () {
       $(placeholderId).removeClass('visible');
     });
-    $("".concat(placeholderId, "-small .expand-button")).on('click', function () {
-      $(placeholderId).addClass('visible');
+    $("#".concat(placeholderId, "-small .expand-button")).on('click', function () {
+      $("#".concat(placeholderId)).addClass('visible');
     });
     $(window).resize(function () {
       if (window.innerWidth <= 768) {
-        $(placeholderId).removeClass('visible');
+        $("#".concat(placeholderId)).removeClass('visible');
       }
     });
     return {
@@ -692,9 +690,7 @@ var classWithPercentage = (100 - boxWidthPercentage) / 2;
 var height = 400;
 
 var sensorDistDashboard = function (Highcharts, $) {
-  return function (data, summary, dashboardName) {
-    var dashboardId = "#".concat(dashboardName);
-
+  return function (data, summary, dashboardId) {
     var sensorPlace = function sensorPlace() {
       return $('<div/>').css({
         width: '100%',
@@ -720,7 +716,7 @@ var sensorDistDashboard = function (Highcharts, $) {
 
     var charts = [];
     (0, _dataEngine.getSensorNames)(data).forEach(function (sensor) {
-      var $sensorPlace = sensorPlace().appendTo(dashboardId);
+      var $sensorPlace = sensorPlace().appendTo("#".concat(dashboardId));
       var classLabels = ['1', '-1'];
       classLabels.forEach(function (classLabel) {
         var classId = "".concat(sensor, "-data-").concat(classLabel);
@@ -760,15 +756,14 @@ var height = 450;
 var widthPercent = 33;
 
 var sensorCorrDashboard = function (Highcharts, $) {
-  return function (data, summary, dashboardName) {
-    var dashboardId = "#".concat(dashboardName);
+  return function (data, summary, dashboardId) {
     var sensors = (0, _dataEngine.getSensorNames)(data);
     var sensorX = sensors[0];
     var classLabel = '1';
-    var $chartContainer = $("".concat(dashboardId, " #corrCharts"));
+    var $chartPlace = $("#".concat(dashboardId, " #corrCharts"));
 
     var buildCharts = function buildCharts() {
-      $chartContainer.empty();
+      $chartPlace.empty();
       var charts = [];
       sensors.forEach(function (sensorY) {
         if (sensorY === sensorX) {
@@ -780,7 +775,7 @@ var sensorCorrDashboard = function (Highcharts, $) {
           display: 'inline-block',
           width: "".concat(widthPercent, "%"),
           height: "".concat(height, "px")
-        }).appendTo($chartContainer);
+        }).appendTo($chartPlace);
         var chart = (0, _charts.sensorCorrChart)(sensorX, sensorY, data, summary, classLabel, classLabel);
         charts.push(Highcharts.chart(chartId, chart));
       });
@@ -788,14 +783,14 @@ var sensorCorrDashboard = function (Highcharts, $) {
     };
 
     var charts = [];
-    $("".concat(dashboardId, " #sensorSelect")).append(sensors.map(function (sensor) {
+    $("#".concat(dashboardId, " #sensorSelect")).append(sensors.map(function (sensor) {
       return $('<option/>').text(sensor);
     })).val(sensorX).on('change', function () {
       sensorX = this.value;
       charts = buildCharts();
     });
-    $("".concat(dashboardId, " input[type=radio][name=classSelect][value=").concat(classLabel, "]")).prop('checked', true);
-    $("".concat(dashboardId, " input[type=radio][name=classSelect]")).change(function () {
+    $("#".concat(dashboardId, " input[type=radio][name=classSelect][value=").concat(classLabel, "]")).prop('checked', true);
+    $("#".concat(dashboardId, " input[type=radio][name=classSelect]")).change(function () {
       classLabel = this.value;
       charts = buildCharts();
     });
@@ -827,8 +822,7 @@ var height = 450;
 var widthPercent = 33;
 
 var classCorrDashboard = function (Highcharts, $) {
-  return function (data, summary, dashboardName) {
-    var dashboardId = "#".concat(dashboardName);
+  return function (data, summary, dashboardId) {
     var sensors = (0, _dataEngine.getSensorNames)(data);
     var charts = [];
     sensors.forEach(function (sensor) {
@@ -837,7 +831,7 @@ var classCorrDashboard = function (Highcharts, $) {
         display: 'inline-block',
         width: "".concat(widthPercent, "%"),
         height: "".concat(height, "px")
-      }).appendTo(dashboardId);
+      }).appendTo("#".concat(dashboardId));
       var chart = (0, _charts.sensorCorrChart)(sensor, sensor, data, summary, '1', '-1');
       charts.push(Highcharts.chart(chartId, chart));
     });
@@ -905,13 +899,12 @@ var _dashboards = require("./dashboards");
 var _dataEngine = require("./dataEngine");
 
 var layout = function ($) {
-  return function _callee(sidebarName, contentName) {
-    var contentId, dashboardMap, data, summary, initDashboard, onItemSelected, bar;
+  return function _callee(sidebarName, contentId) {
+    var dashboardMap, data, summary, initDashboard, onItemSelected, bar;
     return regeneratorRuntime.async(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
-            contentId = "#".concat(contentName);
             dashboardMap = new Map();
             data = null;
             summary = null;
@@ -932,7 +925,7 @@ var layout = function ($) {
             };
 
             onItemSelected = function onItemSelected(itemId) {
-              $("".concat(contentId, " .item")).each(function () {
+              $("#".concat(contentId, " .item")).each(function () {
                 if ($(this).attr('id') === itemId) {
                   $(this).addClass('active');
                 } else {
@@ -944,23 +937,23 @@ var layout = function ($) {
             };
 
             bar = (0, _sidebar.sidebar)(sidebarName, onItemSelected);
-            _context.next = 9;
+            _context.next = 8;
             return regeneratorRuntime.awrap((0, _channel.fetchData)());
 
-          case 9:
+          case 8:
             data = _context.sent.sensor_data;
-            _context.next = 12;
+            _context.next = 11;
             return regeneratorRuntime.awrap(new Promise(function (res, _rej) {
               return res((0, _dataEngine.calcSummary)(data));
             }));
 
-          case 12:
+          case 11:
             summary = _context.sent;
             return _context.abrupt("return", {
               selectDashboard: bar.selectItem
             });
 
-          case 14:
+          case 13:
           case "end":
             return _context.stop();
         }

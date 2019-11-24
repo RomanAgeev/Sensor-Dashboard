@@ -3,9 +3,7 @@ import { fetchData } from './channel';
 import { dashboardFactory } from './dashboards';
 import { calcSummary } from './dataEngine';
 
-const layout = ($ => async (sidebarName, contentName) => {
-    const contentId = `#${contentName}`;
-    
+const layout = ($ => async (sidebarName, contentId) => {
     const dashboardMap = new Map();
 
     let data = null;
@@ -25,7 +23,7 @@ const layout = ($ => async (sidebarName, contentName) => {
     };
 
     const onItemSelected = itemId => {
-        $(`${contentId} .item`).each(function() {
+        $(`#${contentId} .item`).each(function() {
             if ($(this).attr('id') === itemId) {
                 $(this).addClass('active');
             } else {

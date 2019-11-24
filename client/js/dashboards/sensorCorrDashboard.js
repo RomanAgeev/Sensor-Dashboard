@@ -5,18 +5,16 @@ import { reflow } from '../utils';
 const height = 450;
 const widthPercent = 33;
 
-export const sensorCorrDashboard = ((Highcharts, $) => (data, summary, dashboardName) => {
-    const dashboardId = `#${dashboardName}`;
-
+export const sensorCorrDashboard = ((Highcharts, $) => (data, summary, dashboardId) => {
     const sensors = getSensorNames(data);
 
     let sensorX = sensors[0];
     let classLabel = '1';
 
-    const $chartContainer = $(`${dashboardId} #corrCharts`);
+    const $chartPlace = $(`#${dashboardId} #corrCharts`);
 
     const buildCharts = () => {
-        $chartContainer.empty();
+        $chartPlace.empty();
 
         const charts = [];
 
@@ -34,7 +32,7 @@ export const sensorCorrDashboard = ((Highcharts, $) => (data, summary, dashboard
                     width: `${widthPercent}%`,
                     height: `${height}px`,
                 })
-                .appendTo($chartContainer);
+                .appendTo($chartPlace);
 
             const chart = sensorCorrChart(sensorX, sensorY, data, summary, classLabel, classLabel);
 
@@ -46,7 +44,7 @@ export const sensorCorrDashboard = ((Highcharts, $) => (data, summary, dashboard
 
     let charts = [];
 
-    $(`${dashboardId} #sensorSelect`)
+    $(`#${dashboardId} #sensorSelect`)
         .append(sensors.map(sensor => $('<option/>').text(sensor)))
         .val(sensorX)
         .on('change', function() {
@@ -54,10 +52,10 @@ export const sensorCorrDashboard = ((Highcharts, $) => (data, summary, dashboard
             charts = buildCharts();
         });
 
-    $(`${dashboardId} input[type=radio][name=classSelect][value=${classLabel}]`)
+    $(`#${dashboardId} input[type=radio][name=classSelect][value=${classLabel}]`)
         .prop('checked', true);
 
-    $(`${dashboardId} input[type=radio][name=classSelect]`)
+    $(`#${dashboardId} input[type=radio][name=classSelect]`)
         .change(function() {
             classLabel = this.value;
             charts = buildCharts();
