@@ -208,7 +208,7 @@ exports.fetchData = fetchData;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.jQueryHelper = exports.getColor = exports.reflow = exports.readableName = void 0;
+exports.loadingBox = exports.getColor = exports.reflow = exports.readableName = void 0;
 
 var readableName = function readableName(sensor) {
   var match = /^(\w+)(\d+)$/g.exec(sensor);
@@ -232,23 +232,21 @@ var getColor = function getColor(index) {
 exports.getColor = getColor;
 var colors = ['#7cb5ec', '#a3a3a8', '#90ed7d', '#f7a35c', '#8085e9', '#f15c80', '#e4d354', '#2b908f', '#f45b5b', '#91e8e1'];
 
-var jQueryHelper = function ($) {
-  return {
-    loadingPlace: function loadingPlace(id, width, height) {
-      return $('<div/>').attr('id', id).css({
-        display: 'inline-block',
-        width: width,
-        height: height,
-        'text-align': 'center',
-        'vertical-align': 'middle',
-        'line-height': height,
-        color: '#808080'
-      }).text('Loading...');
-    }
+var loadingBox = function ($) {
+  return function (id, width, height) {
+    return $('<div/>').attr('id', id).css({
+      display: 'inline-block',
+      width: width,
+      height: height,
+      'text-align': 'center',
+      'vertical-align': 'middle',
+      'line-height': height,
+      color: '#808080'
+    }).text('Loading...');
   };
 }(jQuery);
 
-exports.jQueryHelper = jQueryHelper;
+exports.loadingBox = loadingBox;
 },{}],"YLGK":[function(require,module,exports) {
 "use strict";
 
@@ -732,11 +730,11 @@ var sensorDistDashboard = function (Highcharts, $) {
     };
 
     var sensorDataPlace = function sensorDataPlace(id) {
-      return _utils.jQueryHelper.loadingPlace(id, "".concat(classWithPercentage, "%"), "".concat(height, "px"));
+      return (0, _utils.loadingBox)(id, "".concat(classWithPercentage, "%"), "".concat(height, "px"));
     };
 
     var sensorBoxPlace = function sensorBoxPlace(id) {
-      return _utils.jQueryHelper.loadingPlace(id, "".concat(boxWidthPercentage, "%"), "".concat(height, "px"));
+      return (0, _utils.loadingBox)(id, "".concat(boxWidthPercentage, "%"), "".concat(height, "px"));
     };
 
     var charts = [];
@@ -800,9 +798,7 @@ var sensorCorrDashboard = function (Highcharts, $) {
         }
 
         var chartId = "".concat(sensorX, "-").concat(sensorY);
-
-        _utils.jQueryHelper.loadingPlace(chartId, "".concat(widthPercent, "%"), "".concat(height, "px")).appendTo($chartPlace);
-
+        (0, _utils.loadingBox)(chartId, "".concat(widthPercent, "%"), "".concat(height, "px")).appendTo($chartPlace);
         setTimeout(function () {
           var chart = (0, _charts.sensorCorrChart)(sensorX, sensorY, data, summary, classLabel, classLabel);
           charts.push(Highcharts.chart(chartId, chart));
@@ -856,9 +852,7 @@ var classCorrDashboard = function (Highcharts, $) {
     var charts = [];
     sensors.forEach(function (sensor) {
       var chartId = "".concat(sensor, "-class-to-class");
-
-      _utils.jQueryHelper.loadingPlace(chartId, "".concat(widthPercent, "%"), "".concat(height, "px")).appendTo("#".concat(dashboardId));
-
+      (0, _utils.loadingBox)(chartId, "".concat(widthPercent, "%"), "".concat(height, "px")).appendTo("#".concat(dashboardId));
       setTimeout(function () {
         var chart = (0, _charts.sensorCorrChart)(sensor, sensor, data, summary, '1', '-1');
         charts.push(Highcharts.chart(chartId, chart));

@@ -20,9 +20,8 @@ const colors = [
     '#91e8e1',
 ];
 
-export const jQueryHelper = ($ => ({
-    loadingPlace: (id, width, height) =>
-        $('<div/>')
+export const loadingBox = ($ => (id, width, height) =>
+    $('<div/>')
         .attr('id', id)
         .css({
             display: 'inline-block',
@@ -33,5 +32,5 @@ export const jQueryHelper = ($ => ({
             'line-height': height,
             color: '#808080',
         })
-        .text('Loading...'),
-}))(jQuery);
+        .text('Loading...')
+)(jQuery);

@@ -1,6 +1,6 @@
 import { sensorDataChart, sensorBoxChart } from '../charts';
 import { getSensorNames } from '../dataEngine';
-import { reflow, jQueryHelper } from '../utils';
+import { reflow, loadingBox } from '../utils';
 
 const boxWidthPercentage = 24;
 const classWithPercentage = (100 - boxWidthPercentage) / 2;
@@ -14,8 +14,8 @@ export const sensorDistDashboard = ((Highcharts, $) => (data, summary, dashboard
                 height: `${height}px`,
             });
            
-    const sensorDataPlace = id => jQueryHelper.loadingPlace(id, `${classWithPercentage}%`, `${height}px`);
-    const sensorBoxPlace = id => jQueryHelper.loadingPlace(id, `${boxWidthPercentage}%`, `${height}px`);
+    const sensorDataPlace = id => loadingBox(id, `${classWithPercentage}%`, `${height}px`);
+    const sensorBoxPlace = id => loadingBox(id, `${boxWidthPercentage}%`, `${height}px`);
 
     const charts = [];
 
