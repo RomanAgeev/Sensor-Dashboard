@@ -1,5 +1,6 @@
 import { sensorDataChart, sensorBoxChart } from '../charts';
 import { getSensorNames } from '../dataEngine';
+import { reflow } from '../utils';
 
 const boxWidthPercentage = 24;
 const classWithPercentage = (100 - boxWidthPercentage) / 2;
@@ -31,7 +32,9 @@ export const sensorDistDashboard = ((Highcharts, $) => (data, summary, dashboard
             'display': 'inline-block',
             'width': `${boxWidthPercentage}%`,
             'height': '100%'
-        }); 
+        });    
+
+    const charts = [];
 
     getSensorNames(data).forEach(sensor => {
         const $sensorPlace = sensorPlace().appendTo(dashboardId);
@@ -43,13 +46,17 @@ export const sensorDistDashboard = ((Highcharts, $) => (data, summary, dashboard
             sensorDataPlace(classId).appendTo($sensorPlace);
             const chartData = sensorDataChart(sensor, data, summary, classLabel);
 
-            Highcharts.chart(classId, chartData);
+            charts.push(Highcharts.chart(classId, chartData));
         });
 
         const boxId = `${sensor}-box`;
         sensorBoxPlace(boxId).appendTo($sensorPlace);
         const chartBox = sensorBoxChart(sensor, data, summary, classLabels);
 
-        Highcharts.chart(boxId, chartBox);
+        charts.push(Highcharts.chart(boxId, chartBox));
     });
+
+    return {
+        activate: () => reflow(charts),
+    };
 })(Highcharts, jQuery);

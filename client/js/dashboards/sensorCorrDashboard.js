@@ -1,5 +1,6 @@
 import { getSensorNames } from '../dataEngine';
 import { sensorCorrChart } from '../charts';
+import { reflow } from '../utils';
 
 const height = 450;
 const widthPercent = 33;
@@ -16,6 +17,8 @@ export const sensorCorrDashboard = ((Highcharts, $) => (data, summary, dashboard
 
     const buildCharts = () => {
         $chartContainer.empty();
+
+        const charts = [];
 
         sensors.forEach(sensorY => {
             if (sensorY === sensorX) {
@@ -35,16 +38,20 @@ export const sensorCorrDashboard = ((Highcharts, $) => (data, summary, dashboard
 
             const chart = sensorCorrChart(sensorX, sensorY, data, summary, classLabel, classLabel);
 
-            Highcharts.chart(chartId, chart);
+            charts.push(Highcharts.chart(chartId, chart));
         });
+
+        return charts;
     };
+
+    let charts = [];
 
     $(`${dashboardId} #sensorSelect`)
         .append(sensors.map(sensor => $('<option/>').text(sensor)))
         .val(sensorX)
         .on('change', function() {
             sensorX = this.value;
-            buildCharts();
+            charts = buildCharts();
         });
 
     $(`${dashboardId} input[type=radio][name=classSelect][value=${classLabel}]`)
@@ -53,8 +60,12 @@ export const sensorCorrDashboard = ((Highcharts, $) => (data, summary, dashboard
     $(`${dashboardId} input[type=radio][name=classSelect]`)
         .change(function() {
             classLabel = this.value;
-            buildCharts();
+            charts = buildCharts();
         });
         
-    buildCharts();
+    charts = buildCharts();
+
+    return {
+        activate: () => reflow(charts),
+    };
 })(Highcharts, jQuery);

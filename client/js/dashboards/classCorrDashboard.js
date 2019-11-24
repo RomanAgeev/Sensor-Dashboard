@@ -1,5 +1,6 @@
 import { getSensorNames } from '../dataEngine'
 import { sensorCorrChart } from '../charts';
+import { reflow } from '../utils';
 
 const height = 450;
 const widthPercent = 33;
@@ -8,6 +9,8 @@ export const classCorrDashboard = ((Highcharts, $) => (data, summary, dashboardN
     const dashboardId = `#${dashboardName}`;
 
     const sensors = getSensorNames(data);
+
+    const charts = [];
 
     sensors.forEach(sensor => {
         const chartId = `${sensor}-class-to-class`;
@@ -23,7 +26,10 @@ export const classCorrDashboard = ((Highcharts, $) => (data, summary, dashboardN
 
         const chart = sensorCorrChart(sensor, sensor, data, summary, '1', '-1');
 
-        Highcharts.chart(chartId, chart);
+        charts.push(Highcharts.chart(chartId, chart));
     });
 
+    return {
+        activate: () => reflow(charts),
+    };
 })(Highcharts, jQuery);

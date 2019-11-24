@@ -210,7 +210,7 @@ exports.fetchData = fetchData;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.getColor = exports.readableName = void 0;
+exports.getColor = exports.reflow = exports.readableName = void 0;
 
 var readableName = function readableName(sensor) {
   var match = /^(\w+)(\d+)$/g.exec(sensor);
@@ -218,6 +218,14 @@ var readableName = function readableName(sensor) {
 };
 
 exports.readableName = readableName;
+
+var reflow = function reflow(charts) {
+  return charts.forEach(function (chart) {
+    return chart.reflow();
+  });
+};
+
+exports.reflow = reflow;
 
 var getColor = function getColor(index) {
   return colors[index % colors.length];
@@ -677,6 +685,8 @@ var _charts = require("../charts");
 
 var _dataEngine = require("../dataEngine");
 
+var _utils = require("../utils");
+
 var boxWidthPercentage = 24;
 var classWithPercentage = (100 - boxWidthPercentage) / 2;
 var height = 400;
@@ -708,6 +718,7 @@ var sensorDistDashboard = function (Highcharts, $) {
       });
     };
 
+    var charts = [];
     (0, _dataEngine.getSensorNames)(data).forEach(function (sensor) {
       var $sensorPlace = sensorPlace().appendTo(dashboardId);
       var classLabels = ['1', '-1'];
@@ -715,18 +726,23 @@ var sensorDistDashboard = function (Highcharts, $) {
         var classId = "".concat(sensor, "-data-").concat(classLabel);
         sensorDataPlace(classId).appendTo($sensorPlace);
         var chartData = (0, _charts.sensorDataChart)(sensor, data, summary, classLabel);
-        Highcharts.chart(classId, chartData);
+        charts.push(Highcharts.chart(classId, chartData));
       });
       var boxId = "".concat(sensor, "-box");
       sensorBoxPlace(boxId).appendTo($sensorPlace);
       var chartBox = (0, _charts.sensorBoxChart)(sensor, data, summary, classLabels);
-      Highcharts.chart(boxId, chartBox);
+      charts.push(Highcharts.chart(boxId, chartBox));
     });
+    return {
+      activate: function activate() {
+        return (0, _utils.reflow)(charts);
+      }
+    };
   };
 }(Highcharts, jQuery);
 
 exports.sensorDistDashboard = sensorDistDashboard;
-},{"../charts":"C0ac","../dataEngine":"YLGK"}],"dR46":[function(require,module,exports) {
+},{"../charts":"C0ac","../dataEngine":"YLGK","../utils":"MgTz"}],"dR46":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -737,6 +753,8 @@ exports.sensorCorrDashboard = void 0;
 var _dataEngine = require("../dataEngine");
 
 var _charts = require("../charts");
+
+var _utils = require("../utils");
 
 var height = 450;
 var widthPercent = 33;
@@ -751,6 +769,7 @@ var sensorCorrDashboard = function (Highcharts, $) {
 
     var buildCharts = function buildCharts() {
       $chartContainer.empty();
+      var charts = [];
       sensors.forEach(function (sensorY) {
         if (sensorY === sensorX) {
           return;
@@ -763,27 +782,34 @@ var sensorCorrDashboard = function (Highcharts, $) {
           height: "".concat(height, "px")
         }).appendTo($chartContainer);
         var chart = (0, _charts.sensorCorrChart)(sensorX, sensorY, data, summary, classLabel, classLabel);
-        Highcharts.chart(chartId, chart);
+        charts.push(Highcharts.chart(chartId, chart));
       });
+      return charts;
     };
 
+    var charts = [];
     $("".concat(dashboardId, " #sensorSelect")).append(sensors.map(function (sensor) {
       return $('<option/>').text(sensor);
     })).val(sensorX).on('change', function () {
       sensorX = this.value;
-      buildCharts();
+      charts = buildCharts();
     });
     $("".concat(dashboardId, " input[type=radio][name=classSelect][value=").concat(classLabel, "]")).prop('checked', true);
     $("".concat(dashboardId, " input[type=radio][name=classSelect]")).change(function () {
       classLabel = this.value;
-      buildCharts();
+      charts = buildCharts();
     });
-    buildCharts();
+    charts = buildCharts();
+    return {
+      activate: function activate() {
+        return (0, _utils.reflow)(charts);
+      }
+    };
   };
 }(Highcharts, jQuery);
 
 exports.sensorCorrDashboard = sensorCorrDashboard;
-},{"../dataEngine":"YLGK","../charts":"C0ac"}],"SdJj":[function(require,module,exports) {
+},{"../dataEngine":"YLGK","../charts":"C0ac","../utils":"MgTz"}],"SdJj":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -795,6 +821,8 @@ var _dataEngine = require("../dataEngine");
 
 var _charts = require("../charts");
 
+var _utils = require("../utils");
+
 var height = 450;
 var widthPercent = 33;
 
@@ -802,6 +830,7 @@ var classCorrDashboard = function (Highcharts, $) {
   return function (data, summary, dashboardName) {
     var dashboardId = "#".concat(dashboardName);
     var sensors = (0, _dataEngine.getSensorNames)(data);
+    var charts = [];
     sensors.forEach(function (sensor) {
       var chartId = "".concat(sensor, "-class-to-class");
       $('<div/>').attr('id', chartId).css({
@@ -810,13 +839,18 @@ var classCorrDashboard = function (Highcharts, $) {
         height: "".concat(height, "px")
       }).appendTo(dashboardId);
       var chart = (0, _charts.sensorCorrChart)(sensor, sensor, data, summary, '1', '-1');
-      Highcharts.chart(chartId, chart);
+      charts.push(Highcharts.chart(chartId, chart));
     });
+    return {
+      activate: function activate() {
+        return (0, _utils.reflow)(charts);
+      }
+    };
   };
 }(Highcharts, jQuery);
 
 exports.classCorrDashboard = classCorrDashboard;
-},{"../dataEngine":"YLGK","../charts":"C0ac"}],"uXW5":[function(require,module,exports) {
+},{"../dataEngine":"YLGK","../charts":"C0ac","../utils":"MgTz"}],"bbkP":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -836,7 +870,25 @@ var dashboardFactory = {
   classCorrDashboard: _classCorrDashboard.classCorrDashboard
 };
 exports.dashboardFactory = dashboardFactory;
-},{"./sensorDistDashboard":"OtiO","./sensorCorrDashboard":"dR46","./classCorrDashboard":"SdJj"}],"dXr0":[function(require,module,exports) {
+},{"./sensorDistDashboard":"OtiO","./sensorCorrDashboard":"dR46","./classCorrDashboard":"SdJj"}],"uXW5":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _dashboardFactory = require("./dashboardFactory");
+
+Object.keys(_dashboardFactory).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function () {
+      return _dashboardFactory[key];
+    }
+  });
+});
+},{"./dashboardFactory":"bbkP"}],"dXr0":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -865,7 +917,10 @@ var layout = function ($) {
             summary = null;
 
             initDashboard = function initDashboard(dashboardId) {
-              if (dashboardMap.has(dashboardId)) {
+              var dashboard = dashboardMap.get(dashboardId);
+
+              if (dashboard) {
+                dashboard.activate();
                 return;
               }
 

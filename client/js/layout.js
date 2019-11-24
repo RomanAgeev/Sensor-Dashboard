@@ -12,7 +12,9 @@ const layout = ($ => async (sidebarName, contentName) => {
     let summary = null;
 
     const initDashboard = dashboardId => {
-        if (dashboardMap.has(dashboardId)) {
+        const dashboard = dashboardMap.get(dashboardId);
+        if (dashboard) {
+            dashboard.activate();
             return;
         }
 
