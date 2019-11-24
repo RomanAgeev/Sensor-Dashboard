@@ -36,7 +36,7 @@ const layout = ($ => async (sidebarName, contentId) => {
     const bar = sidebar(sidebarName, onItemSelected);
 
     data = (await fetchData()).sensor_data;
-    summary = await new Promise((res, _rej) => res(calcSummary(data)));
+    summary = calcSummary(data);
 
     return {
         selectDashboard: bar.selectItem,

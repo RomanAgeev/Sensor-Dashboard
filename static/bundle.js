@@ -1012,18 +1012,12 @@ var layout = function ($) {
 
           case 8:
             data = _context.sent.sensor_data;
-            _context.next = 11;
-            return regeneratorRuntime.awrap(new Promise(function (res, _rej) {
-              return res((0, _dataEngine.calcSummary)(data));
-            }));
-
-          case 11:
-            summary = _context.sent;
+            summary = (0, _dataEngine.calcSummary)(data);
             return _context.abrupt("return", {
               selectDashboard: bar.selectItem
             });
 
-          case 13:
+          case 11:
           case "end":
             return _context.stop();
         }
