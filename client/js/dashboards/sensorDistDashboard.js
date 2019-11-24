@@ -2,8 +2,9 @@ import { sensorDataChart, sensorBoxChart } from '../charts';
 import { getSensorNames } from '../dataEngine';
 import { reflow, loadingBox, errorBox, defer } from '../utils';
 
+const classLabels = ['1', '-1'];
 const boxWidthPercentage = 24;
-const classWithPercentage = (100 - boxWidthPercentage) / 2;
+const classWidthPercentage = (100 - boxWidthPercentage) / classLabels.length;
 const height = 400;
 
 export const sensorDistDashboard = ((Highcharts, $) => (data, summary, dashboardId) => {
@@ -14,10 +15,9 @@ export const sensorDistDashboard = ((Highcharts, $) => (data, summary, dashboard
                 height: `${height}px`,
             });
            
-    const sensorDataPlace = id => loadingBox(id, `${classWithPercentage}%`, `${height}px`);
+    const sensorDataPlace = id => loadingBox(id, `${classWidthPercentage}%`, `${height}px`);
     const sensorBoxPlace = id => loadingBox(id, `${boxWidthPercentage}%`, `${height}px`);
 
-    const classLabels = ['1', '-1'];
     const charts = [];
 
     getSensorNames(data).forEach(sensor => {
@@ -28,8 +28,8 @@ export const sensorDistDashboard = ((Highcharts, $) => (data, summary, dashboard
             const $dataPlace = sensorDataPlace(classId).appendTo($sensorPlace);
 
             defer(() => {
-                const chartData = sensorDataChart(sensor, data, summary, classLabel);
-                return Highcharts.chart(classId, chartData);
+                const dataChart = sensorDataChart(sensor, data, summary, classLabel);
+                return Highcharts.chart(classId, dataChart);
             })
             .then(chart => charts.push(chart))
             .catch(e => {
@@ -42,8 +42,8 @@ export const sensorDistDashboard = ((Highcharts, $) => (data, summary, dashboard
         const $boxPlace = sensorBoxPlace(boxId).appendTo($sensorPlace);
         
         defer(() => {
-            const chartBox = sensorBoxChart(sensor, data, summary, classLabels);
-            return Highcharts.chart(boxId, chartBox);
+            const boxChart = sensorBoxChart(sensor, data, summary, classLabels);
+            return Highcharts.chart(boxId, boxChart);
         })
         .then(chart => charts.push(chart))
         .catch(e => {

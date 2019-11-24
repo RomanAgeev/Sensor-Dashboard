@@ -32,7 +32,7 @@ export const sensorCorrChart = (sensorX, sensorY, data, summary, classLabelX, cl
     }
 
     if (classSummaryX.count !== classSummaryY.count) {
-        throw new Error(`The class data differ between ${sensorX}/${classLabelX} and ${sensorY}/${classLabelY}`);
+        throw new Error(`The class data length differs between ${sensorX}/${classLabelX} and ${sensorY}/${classLabelY}`);
     }
 
     const n = classSummaryX.count;

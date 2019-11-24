@@ -3,7 +3,7 @@ import { fetchData } from './channel';
 import { dashboardFactory } from './dashboards';
 import { calcSummary } from './dataEngine';
 
-const layout = ($ => async (sidebarName, contentId) => {
+const layout = ($ => async (sidebarId, contentId) => {
     const dashboardMap = new Map();
 
     let data = null;
@@ -33,9 +33,10 @@ const layout = ($ => async (sidebarName, contentId) => {
         });
     };
 
-    const bar = sidebar(sidebarName, onItemSelected);
+    const bar = sidebar(sidebarId, onItemSelected);
 
     data = (await fetchData()).sensor_data;
+    
     summary = calcSummary(data);
 
     return {

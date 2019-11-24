@@ -54,7 +54,7 @@
         color: $gray-700;
     }
     
-    .item, .group-item {
+    .item {
         display: block;
         color: inherit;
         padding: 10px 20px;
@@ -62,30 +62,14 @@
         cursor: pointer;
     }
     
-    .subitem {
-        padding-left: 40px;
-    }
-    
-    .item:hover, .group-item:hover {
+    .item:hover {
         background: $gray-700;
     }
     
     .item.active {
         color: $dark;
         background: $light;
-    }
-    
-    .dropdown-toggle[data-toggle="collapse"] {
-        position: relative;
-    }
-    
-    .dropdown-toggle::after {
-        display: block;
-        position: absolute;
-        top: 50%;
-        right: 20px;
-        transform: translateY(-50%);
-    }
+    }    
 }
   
 @media (max-width: $media-small) {

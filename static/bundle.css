@@ -9700,32 +9700,19 @@ h3 {
 #sidebar .collapse-button:hover {
   color: #495057;
 }
-#sidebar .item, #sidebar .group-item {
+#sidebar .item {
   display: block;
   color: inherit;
   padding: 10px 20px;
   text-decoration: none;
   cursor: pointer;
 }
-#sidebar .subitem {
-  padding-left: 40px;
-}
-#sidebar .item:hover, #sidebar .group-item:hover {
+#sidebar .item:hover {
   background: #495057;
 }
 #sidebar .item.active {
   color: #343a40;
   background: #f8f9fa;
-}
-#sidebar .dropdown-toggle[data-toggle=collapse] {
-  position: relative;
-}
-#sidebar .dropdown-toggle::after {
-  display: block;
-  position: absolute;
-  top: 50%;
-  right: 20px;
-  transform: translateY(-50%);
 }
 
 @media (max-width: 768px) {

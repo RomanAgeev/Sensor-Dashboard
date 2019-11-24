@@ -1,3 +1,5 @@
+@import "variables";
+
 .navbar-container {
     position: sticky;
     top: 0;
@@ -6,7 +8,7 @@
 
 .navbar {
     margin-bottom: 20px;
-    background-color: #e3f2fd;
+    background-color: $navbar-background;
 }
 
 .navbar-indent {
@@ -22,6 +24,6 @@
 }
 
 .navbar-label {
-    color: black;
+    color: $navbar-label-color;
     opacity: 0.6;
 }

@@ -119,96 +119,13 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   return newRequire;
 })({"YvtQ":[function(require,module,exports) {
 
-},{}],"Hn3T":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.sidebar = void 0;
-
-var sidebar = function ($) {
-  return function (placeholderId, itemSelected) {
-    var selectItem = function selectItem(itemId) {
-      if (!itemId) {
-        return;
-      }
-
-      $("#".concat(placeholderId, " .item")).each(function () {
-        if ($(this).data('item') === itemId) {
-          $(this).addClass('active');
-        } else {
-          $(this).removeClass('active');
-        }
-      });
-      itemSelected(itemId);
-    };
-
-    $("#".concat(placeholderId, " .item")).each(function () {
-      $(this).on('click', function (e) {
-        selectItem($(e.target).data('item'));
-      });
-    });
-    $("#".concat(placeholderId, " .collapse-button")).on('click', function () {
-      $("#".concat(placeholderId)).removeClass('visible');
-    });
-    $("#".concat(placeholderId, "-small .expand-button")).on('click', function () {
-      $("#".concat(placeholderId)).addClass('visible');
-    });
-    $(window).resize(function () {
-      if (window.innerWidth <= 768) {
-        $("#".concat(placeholderId)).removeClass('visible');
-      }
-    });
-    return {
-      selectItem: selectItem
-    };
-  };
-}(jQuery);
-
-exports.sidebar = sidebar;
-},{}],"SvNl":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.fetchData = void 0;
-
-var fetchData = function fetchData() {
-  var res, data;
-  return regeneratorRuntime.async(function fetchData$(_context) {
-    while (1) {
-      switch (_context.prev = _context.next) {
-        case 0:
-          _context.next = 2;
-          return regeneratorRuntime.awrap(fetch('/data'));
-
-        case 2:
-          res = _context.sent;
-          _context.next = 5;
-          return regeneratorRuntime.awrap(res.json());
-
-        case 5:
-          data = _context.sent;
-          return _context.abrupt("return", data);
-
-        case 7:
-        case "end":
-          return _context.stop();
-      }
-    }
-  });
-};
-
-exports.fetchData = fetchData;
 },{}],"MgTz":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.defer = exports.errorBox = exports.loadingBox = exports.getColor = exports.reflow = exports.readableName = void 0;
+exports.defer = exports.errorBox = exports.loadingBox = exports.mediaSmall = exports.getColor = exports.reflow = exports.readableName = void 0;
 
 var readableName = function readableName(sensor) {
   var match = /^(\w+)(\d+)$/g.exec(sensor);
@@ -231,6 +148,8 @@ var getColor = function getColor(index) {
 
 exports.getColor = getColor;
 var colors = ['#7cb5ec', '#a3a3a8', '#90ed7d', '#f7a35c', '#8085e9', '#f15c80', '#e4d354', '#2b908f', '#f45b5b', '#91e8e1'];
+var mediaSmall = 768;
+exports.mediaSmall = mediaSmall;
 
 var loadingBox = function ($) {
   return function (id, width, height) {
@@ -274,6 +193,91 @@ var defer = function defer(action) {
 };
 
 exports.defer = defer;
+},{}],"Hn3T":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.sidebar = void 0;
+
+var _utils = require("./utils");
+
+var sidebar = function ($) {
+  return function (placeholderId, itemSelected) {
+    var selectItem = function selectItem(itemId) {
+      if (!itemId) {
+        return;
+      }
+
+      $("#".concat(placeholderId, " .item")).each(function () {
+        if ($(this).data('item') === itemId) {
+          $(this).addClass('active');
+        } else {
+          $(this).removeClass('active');
+        }
+      });
+      itemSelected(itemId);
+    };
+
+    $("#".concat(placeholderId, " .item")).each(function () {
+      $(this).on('click', function (e) {
+        selectItem($(e.target).data('item'));
+      });
+    });
+    $("#".concat(placeholderId, " .collapse-button")).on('click', function () {
+      $("#".concat(placeholderId)).removeClass('visible');
+    });
+    $("#".concat(placeholderId, "-small .expand-button")).on('click', function () {
+      $("#".concat(placeholderId)).addClass('visible');
+    });
+    $(window).resize(function () {
+      if (window.innerWidth <= _utils.mediaSmall) {
+        $("#".concat(placeholderId)).removeClass('visible');
+      }
+    });
+    return {
+      selectItem: selectItem
+    };
+  };
+}(jQuery);
+
+exports.sidebar = sidebar;
+},{"./utils":"MgTz"}],"SvNl":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.fetchData = void 0;
+
+var fetchData = function fetchData() {
+  var res, data;
+  return regeneratorRuntime.async(function fetchData$(_context) {
+    while (1) {
+      switch (_context.prev = _context.next) {
+        case 0:
+          _context.next = 2;
+          return regeneratorRuntime.awrap(fetch('/data'));
+
+        case 2:
+          res = _context.sent;
+          _context.next = 5;
+          return regeneratorRuntime.awrap(res.json());
+
+        case 5:
+          data = _context.sent;
+          return _context.abrupt("return", data);
+
+        case 7:
+        case "end":
+          return _context.stop();
+      }
+    }
+  });
+};
+
+exports.fetchData = fetchData;
 },{}],"YLGK":[function(require,module,exports) {
 "use strict";
 
@@ -598,7 +602,7 @@ var sensorCorrChart = function sensorCorrChart(sensorX, sensorY, data, summary, 
   }
 
   if (classSummaryX.count !== classSummaryY.count) {
-    throw new Error("The class data differ between ".concat(sensorX, "/").concat(classLabelX, " and ").concat(sensorY, "/").concat(classLabelY));
+    throw new Error("The class data length differs between ".concat(sensorX, "/").concat(classLabelX, " and ").concat(sensorY, "/").concat(classLabelY));
   }
 
   var n = classSummaryX.count;
@@ -743,8 +747,9 @@ var _dataEngine = require("../dataEngine");
 
 var _utils = require("../utils");
 
+var classLabels = ['1', '-1'];
 var boxWidthPercentage = 24;
-var classWithPercentage = (100 - boxWidthPercentage) / 2;
+var classWidthPercentage = (100 - boxWidthPercentage) / classLabels.length;
 var height = 400;
 
 var sensorDistDashboard = function (Highcharts, $) {
@@ -757,14 +762,13 @@ var sensorDistDashboard = function (Highcharts, $) {
     };
 
     var sensorDataPlace = function sensorDataPlace(id) {
-      return (0, _utils.loadingBox)(id, "".concat(classWithPercentage, "%"), "".concat(height, "px"));
+      return (0, _utils.loadingBox)(id, "".concat(classWidthPercentage, "%"), "".concat(height, "px"));
     };
 
     var sensorBoxPlace = function sensorBoxPlace(id) {
       return (0, _utils.loadingBox)(id, "".concat(boxWidthPercentage, "%"), "".concat(height, "px"));
     };
 
-    var classLabels = ['1', '-1'];
     var charts = [];
     (0, _dataEngine.getSensorNames)(data).forEach(function (sensor) {
       var $sensorPlace = sensorPlace().appendTo("#".concat(dashboardId));
@@ -772,8 +776,8 @@ var sensorDistDashboard = function (Highcharts, $) {
         var classId = "".concat(sensor, "-data-").concat(classLabel);
         var $dataPlace = sensorDataPlace(classId).appendTo($sensorPlace);
         (0, _utils.defer)(function () {
-          var chartData = (0, _charts.sensorDataChart)(sensor, data, summary, classLabel);
-          return Highcharts.chart(classId, chartData);
+          var dataChart = (0, _charts.sensorDataChart)(sensor, data, summary, classLabel);
+          return Highcharts.chart(classId, dataChart);
         }).then(function (chart) {
           return charts.push(chart);
         }).catch(function (e) {
@@ -784,8 +788,8 @@ var sensorDistDashboard = function (Highcharts, $) {
       var boxId = "".concat(sensor, "-box");
       var $boxPlace = sensorBoxPlace(boxId).appendTo($sensorPlace);
       (0, _utils.defer)(function () {
-        var chartBox = (0, _charts.sensorBoxChart)(sensor, data, summary, classLabels);
-        return Highcharts.chart(boxId, chartBox);
+        var boxChart = (0, _charts.sensorBoxChart)(sensor, data, summary, classLabels);
+        return Highcharts.chart(boxId, boxChart);
       }).then(function (chart) {
         return charts.push(chart);
       }).catch(function (e) {
@@ -888,7 +892,7 @@ var _utils = require("../utils");
 var height = 450;
 var widthPercent = 33;
 
-var classCorrDashboard = function (Highcharts, $) {
+var classCorrDashboard = function (Highcharts) {
   return function (data, summary, dashboardId) {
     var sensors = (0, _dataEngine.getSensorNames)(data);
     var charts = [];
@@ -911,7 +915,7 @@ var classCorrDashboard = function (Highcharts, $) {
       }
     };
   };
-}(Highcharts, jQuery);
+}(Highcharts);
 
 exports.classCorrDashboard = classCorrDashboard;
 },{"../dataEngine":"YLGK","../charts":"C0ac","../utils":"MgTz"}],"bbkP":[function(require,module,exports) {
@@ -969,7 +973,7 @@ var _dashboards = require("./dashboards");
 var _dataEngine = require("./dataEngine");
 
 var layout = function ($) {
-  return function _callee(sidebarName, contentId) {
+  return function _callee(sidebarId, contentId) {
     var dashboardMap, data, summary, initDashboard, onItemSelected, bar;
     return regeneratorRuntime.async(function _callee$(_context) {
       while (1) {
@@ -1006,7 +1010,7 @@ var layout = function ($) {
               });
             };
 
-            bar = (0, _sidebar.sidebar)(sidebarName, onItemSelected);
+            bar = (0, _sidebar.sidebar)(sidebarId, onItemSelected);
             _context.next = 8;
             return regeneratorRuntime.awrap((0, _channel.fetchData)());
 

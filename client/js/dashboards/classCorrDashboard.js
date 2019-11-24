@@ -5,7 +5,7 @@ import { reflow, loadingBox, errorBox, defer } from '../utils';
 const height = 450;
 const widthPercent = 33;
 
-export const classCorrDashboard = ((Highcharts, $) => (data, summary, dashboardId) => {
+export const classCorrDashboard = (Highcharts => (data, summary, dashboardId) => {
     const sensors = getSensorNames(data);
 
     const charts = [];
@@ -29,4 +29,4 @@ export const classCorrDashboard = ((Highcharts, $) => (data, summary, dashboardI
     return {
         activate: () => reflow(charts),
     };
-})(Highcharts, jQuery);
+})(Highcharts);

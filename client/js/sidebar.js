@@ -1,3 +1,5 @@
+import { mediaSmall } from './utils';
+
 export const sidebar = ($ => (placeholderId, itemSelected) => {
     const selectItem = itemId => {
         if (!itemId) {
@@ -30,7 +32,7 @@ export const sidebar = ($ => (placeholderId, itemSelected) => {
     });
 
     $(window).resize(function() {
-        if(window.innerWidth <= 768) {
+        if(window.innerWidth <= mediaSmall) {
             $(`#${placeholderId}`).removeClass('visible');
         }
     });

@@ -20,6 +20,8 @@ const colors = [
     '#91e8e1',
 ];
 
+export const mediaSmall = 768;
+
 export const loadingBox = ($ => (id, width, height) =>
     $('<div/>')
         .attr('id', id)
